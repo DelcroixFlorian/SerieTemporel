@@ -3,7 +3,6 @@ package com.SerieTemporel.modele;
 import java.util.ArrayList;
 
 import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -21,7 +20,7 @@ public class Utilisateur {
 
     @Convert(converter= ConvertListeSerie.class)
     private ArrayList<Integer> shared_list_serie;
-    
+
     public Utilisateur(String identifiant, String mdp){
         this.identifiant = identifiant;
         this.mdp = mdp;
