@@ -23,7 +23,11 @@ public class Serie {
         this.titre = titre;
         this.description = description;
     }
-    
+
+    public Serie() {
+
+    }
+
 
     public String toJson(){
         
