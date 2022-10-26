@@ -4,9 +4,15 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.function.Function;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Serie {
     
+    @Id
     private long id;
+    
     private String titre;
     private String description;
 
