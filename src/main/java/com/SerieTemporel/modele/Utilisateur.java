@@ -8,10 +8,10 @@ import javax.persistence.Id;
 
 @Entity
 public class Utilisateur {
-
+    
     @Id
     private long id;
-
+    
     private String identifiant;
     private String mdp;
 
@@ -35,4 +35,10 @@ public class Utilisateur {
     public long getId() {
         return id;
     }
+
+
+    public String getIdentifiant(){
+        return identifiant;
+    }
+
 }
