@@ -10,7 +10,7 @@ import javax.persistence.Id;
 public class Utilisateur {
     
     @Id
-    private long id;
+    private Long id;
     
     private String identifiant;
     private String mdp;
@@ -32,7 +32,7 @@ public class Utilisateur {
 
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

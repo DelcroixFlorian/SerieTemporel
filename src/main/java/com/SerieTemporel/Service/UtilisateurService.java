@@ -21,12 +21,16 @@ public class UtilisateurService {
         return utilisateurs;
     }
 
-    public Utilisateur getUtilisateur(long userid) {
+    public Utilisateur getUtilisateur(Long userid) {
         return utilisateurRepository.findById(userid).get();
     }
 
-    public long creerUtilisateur(Utilisateur user) {
+    public Long creerUtilisateur(Utilisateur user) {
         Utilisateur new_user = utilisateurRepository.save(user);
         return new_user.getId();
+    }
+
+    public void deleteUtilisateur(Long userid){
+        utilisateurRepository.deleteById(userid);
     }
 }

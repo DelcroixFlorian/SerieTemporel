@@ -37,4 +37,14 @@ public class UtilisateurController {
     public ResponseEntity getUtilisateur(@PathVariable("userid") long userid){
         return new ResponseEntity(utilisateurService.getUtilisateur(userid), HttpStatus.OK);
     }
+
+    @DeleteMapping("/utilisateur/delete/{userid}")
+    public ResponseEntity deleteUtilisateur(@PathVariable("userid") long userid){
+        try {
+            utilisateurService.deleteUtilisateur(userid);
+        } catch (Exception exception) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity("Employee deleted with id: " + userid, HttpStatus.OK);
+    }
 }
