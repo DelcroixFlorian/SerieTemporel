@@ -7,7 +7,7 @@ import com.SerieTemporel.modele.Serie;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SerieRepo extends JpaRepository<Serie, Integer> {
+public interface SerieRepo extends JpaRepository<Serie, Long> {
     
 }
 

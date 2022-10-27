@@ -4,13 +4,15 @@ import java.util.ArrayList;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
 public class Utilisateur {
     
     @Id
-    private Long id;
+    @GeneratedValue
+    private long id;
     
     private String identifiant;
     private String mdp;
@@ -32,7 +34,7 @@ public class Utilisateur {
 
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

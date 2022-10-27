@@ -3,12 +3,14 @@ package com.SerieTemporel.modele;
 import java.util.ArrayList;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
 public class Serie {
     
     @Id
+    @GeneratedValue
     private long id;
     
     private String titre;
