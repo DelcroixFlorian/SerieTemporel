@@ -22,6 +22,6 @@ public class UtilisateurService {
     }
 
     public Utilisateur getUtilisateur(long userid) {
-        return utilisateurRepository.getReferenceById(userid);
+        return utilisateurRepository.findById(userid).get();
     }
 }

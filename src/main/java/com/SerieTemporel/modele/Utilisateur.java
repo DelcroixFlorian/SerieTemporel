@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name="UTILISATEUR")
 public class Utilisateur {
     
     @Id
-    private long id;
-    
+    private Long id;
     private String identifiant;
     private String mdp;
 
@@ -26,7 +26,16 @@ public class Utilisateur {
         this.mdp = mdp;
     }
 
-    public Utilisateur() {
+    public Utilisateur(){
 
     }
+
+    public Long getId(){
+        return id;
+    }
+
+    public String getIdentifiant(){
+        return identifiant;
+    }
+
 }
