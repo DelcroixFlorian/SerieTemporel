@@ -19,11 +19,13 @@ public class ConvertListeSerie implements AttributeConverter<ArrayList<Integer>,
 
     @Override
     public ArrayList<Integer> convertToEntityAttribute(String string) {
-        String[] bd_split = string.split(SPLIT_CHAR);
+        String[] bd_split = string == null ? new String[0] : string.split(SPLIT_CHAR);
         ArrayList<Integer> entity = new ArrayList<Integer>();
 
         for (String elt : bd_split) {
-            entity.add(Integer.valueOf(elt));
+            if (!elt.isEmpty() && !elt.isBlank()) {
+                entity.add(Integer.valueOf(elt));
+            }
         }
 
         return entity;
