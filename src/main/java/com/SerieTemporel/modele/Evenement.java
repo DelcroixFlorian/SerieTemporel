@@ -1,6 +1,7 @@
 package com.SerieTemporel.modele;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Date;
 
@@ -8,6 +9,7 @@ import java.sql.Date;
 public class Evenement {
 
     @Id
+    @GeneratedValue
     private long id_event;
 
     private long id_serie;
@@ -32,6 +34,29 @@ public class Evenement {
         this.commentaire = commentaire;
     }
 
+    public long getId_event() {
+        return id_event;
+    }
+
+    public long getId_serie() {
+        return id_serie;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public double getValeur() {
+        return valeur;
+    }
+
+    public String getEtiquette() {
+        return etiquette;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
 
     public Evenement() {
 
