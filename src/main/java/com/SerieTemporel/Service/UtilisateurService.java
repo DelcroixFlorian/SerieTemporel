@@ -22,6 +22,11 @@ public class UtilisateurService {
     }
 
     public Utilisateur getUtilisateur(long userid) {
-        return utilisateurRepository.getReferenceById(userid);
+        return utilisateurRepository.findById(userid).get();
+    }
+
+    public long creerUtilisateur(Utilisateur user) {
+        Utilisateur new_user = utilisateurRepository.save(user);
+        return new_user.getId();
     }
 }

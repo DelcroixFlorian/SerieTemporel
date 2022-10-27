@@ -11,8 +11,10 @@ public class ConvertListeSerie implements AttributeConverter<ArrayList<Integer>,
     @Override
     public String convertToDatabaseColumn(ArrayList<Integer> series) {
         StringBuilder string_base = new StringBuilder("");
-        for (Integer serie : series) {
-            string_base.append(serie).append(SPLIT_CHAR);
+        if (series != null) {
+            for (Integer serie : series) {
+                string_base.append(serie).append(SPLIT_CHAR);
+            }
         }
         return string_base.toString();
     }
