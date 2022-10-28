@@ -45,6 +45,16 @@ public class UtilisateurController {
         } catch (Exception exception) {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity("Employee deleted with id: " + userid, HttpStatus.OK);
+        return new ResponseEntity("Utilisateur : " + userid + " supprimé", HttpStatus.OK);
+    }
+
+    @PutMapping("/utilisateur/update")
+    public ResponseEntity updateUtilisateur(@RequestBody Utilisateur user){
+        try {
+            utilisateurService.updateUtilisateur(user);
+        } catch(Exception exception) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity("Utilisateur modifié", HttpStatus.OK);
     }
 }

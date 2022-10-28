@@ -30,6 +30,10 @@ public class UtilisateurService {
         return new_user.getId();
     }
 
+    public void updateUtilisateur(Utilisateur user){
+        utilisateurRepository.save(user);
+    }
+
     public void deleteUtilisateur(Long userid){
         utilisateurRepository.deleteById(userid);
     }
