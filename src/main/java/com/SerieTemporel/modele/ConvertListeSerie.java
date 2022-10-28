@@ -5,14 +5,14 @@ import javax.persistence.Converter;
 import java.util.ArrayList;
 
 @Converter
-public class ConvertListeSerie implements AttributeConverter<ArrayList<Integer>, String> {
+public class ConvertListeSerie implements AttributeConverter<ArrayList<Long>, String> {
     private static final String SPLIT_CHAR = ";";
 
     @Override
-    public String convertToDatabaseColumn(ArrayList<Integer> series) {
+    public String convertToDatabaseColumn(ArrayList<Long> series) {
         StringBuilder string_base = new StringBuilder("");
         if (series != null) {
-            for (Integer serie : series) {
+            for (Long serie : series) {
                 string_base.append(serie).append(SPLIT_CHAR);
             }
         }
@@ -20,13 +20,13 @@ public class ConvertListeSerie implements AttributeConverter<ArrayList<Integer>,
     }
 
     @Override
-    public ArrayList<Integer> convertToEntityAttribute(String string) {
+    public ArrayList<Long> convertToEntityAttribute(String string) {
         String[] bd_split = string == null ? new String[0] : string.split(SPLIT_CHAR);
-        ArrayList<Integer> entity = new ArrayList<Integer>();
+        ArrayList<Long> entity = new ArrayList<Long>();
 
         for (String elt : bd_split) {
             if (!elt.isEmpty() && !elt.isBlank()) {
-                entity.add(Integer.valueOf(elt));
+                entity.add(Long.valueOf(elt));
             }
         }
 

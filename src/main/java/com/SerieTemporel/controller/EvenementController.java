@@ -2,7 +2,6 @@ package com.SerieTemporel.controller;
 
 import com.SerieTemporel.Service.EvenementService;
 import com.SerieTemporel.modele.Evenement;
-import com.SerieTemporel.modele.Serie;
 import com.SerieTemporel.repository.EvenementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,11 @@ public class EvenementController {
 
     @PostMapping("/evenement/create")
     public ResponseEntity ajouter_evenement(@RequestBody Evenement new_evenement) {
-        return new ResponseEntity("Id de l'évenement : " + serviceEvenement.creerEvenement(new_evenement),
+        long id_new_event = serviceEvenement.creerEvenement(new_evenement);
+        if (id_new_event == -1) {
+            return new ResponseEntity("Erreur", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity("Id de l'évenement : " + id_new_event,
                                   HttpStatus.CREATED);
     }
 
@@ -33,9 +36,15 @@ public class EvenementController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PatchMapping("/evenement/update")
+    @PutMapping("/evenement/update")
     public ResponseEntity update_evenement(@RequestBody Evenement evt) {
         serviceEvenement.updateEvenement(evt);
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/evenement/{id_event}")
+    public ResponseEntity voir_evenement(@PathVariable("id_event") long id_event) {
+        Evenement evt = serviceEvenement.getEvenement(id_event);
+        return new ResponseEntity(evt, HttpStatus.OK);
     }
 }
