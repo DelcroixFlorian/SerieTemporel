@@ -1,6 +1,8 @@
 package com.SerieTemporel.controller;
 
 import com.SerieTemporel.Service.EvenementService;
+import com.SerieTemporel.Service.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.Service.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
 import com.SerieTemporel.repository.EvenementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class EvenementController {
     private final EvenementRepo repo;
+    private final String MESSAGE_ERREUR_INTERNE = "Une erreur interne au serveur est survenue lors du traitement de l'opération, veuillez réessayer. Détail : ";
 
     @Autowired
     EvenementService serviceEvenement;
@@ -39,38 +42,79 @@ public class EvenementController {
     @PostMapping("/evenement/create")
     public ResponseEntity ajouter_evenement(@RequestBody Evenement new_evenement) {
         // Création de l'élément en base via le service et récupération de son identifiant
-        long id_new_event = serviceEvenement.creerEvenement(new_evenement);
+        try {
+            long id_new_event = serviceEvenement.creerEvenement(new_evenement);
+            // On renvoi l'identifiant du nouvel événement avec 201 comme statut
+            return new ResponseEntity("Id de l'évenement : " + id_new_event,
+                    HttpStatus.CREATED);
 
-        // Gestion du cas d'erreur lors de la création
-        if (id_new_event == -1) {
-            return new ResponseEntity("Erreur, échec de la création de l'événement !" +
-                                           " L'identifiant de la série n'a pas pu être identifié.",
-                                      HttpStatus.BAD_REQUEST);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
-        // On renvoi l'identifiant du nouvel événement avec 201 comme statut
-        return new ResponseEntity("Id de l'évenement : " + id_new_event,
-                                  HttpStatus.CREATED);
     }
 
 
-
+    /**
+     * Requête DELETE pour la suppression d'un événement
+     * @param id : identifiant de l'évènement à supprimer
+     * @return BAD_REQUEST si l'événement n'existe pas
+     *         INTERNAL_SERVER_ERROR si la suppression a échoué
+     *         OK si tout s'est bien passé
+     */
     @DeleteMapping("/evenement/delete/{id}")
     public ResponseEntity supprimer_evenement(@PathVariable("id") long id) {
-        Evenement evt = serviceEvenement.getEvenement(id);
-        serviceEvenement.supprimerEvenement(evt);
-        return ResponseEntity.ok(HttpStatus.OK);
+        try {
+            serviceEvenement.supprimerEvenement(id);
+            return ResponseEntity.ok(HttpStatus.OK);
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        }
     }
 
+
+    /**
+     * Requête PUT pour modifiert un événement
+     * @param evt : une représentation de l'événement à modifier
+     * @return
+     */
     @PutMapping("/evenement/update")
     public ResponseEntity update_evenement(@RequestBody Evenement evt) {
-        serviceEvenement.updateEvenement(evt);
-        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+        try {
+            Evenement evt_a_jour = serviceEvenement.updateEvenement(evt);
+            return ResponseEntity.ok(HttpStatus.OK);
+
+        } catch (ExceptionFormatObjetInvalide err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
+
+        } catch (ExceptionInterne exceptionInterne) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + exceptionInterne.getMessage());
+        }
     }
 
+
+    /**
+     * Requête GET récupération d'un événement
+     * @param id_event
+     * @return
+     */
     @GetMapping("/evenement/{id_event}")
     public ResponseEntity voir_evenement(@PathVariable("id_event") long id_event) {
-        Evenement evt = serviceEvenement.getEvenement(id_event);
-        return new ResponseEntity(evt, HttpStatus.OK);
+        Evenement evt = null;
+        try {
+            evt = serviceEvenement.getEvenement(id_event);
+            return new ResponseEntity(evt, HttpStatus.OK);
+
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        }
+
     }
 }
