@@ -19,7 +19,7 @@ public class Evenement {
     private String commentaire;
 
     /**
-     *
+     * Constructeur d'un évènement
      * @param id_serie
      * @param date
      * @param valeur
