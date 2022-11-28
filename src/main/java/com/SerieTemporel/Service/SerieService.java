@@ -28,7 +28,7 @@ public class SerieService {
         try {
             // vérifier user
             Serie serie =  serieRepo.save(new_serie);
-            utilisateurService.ajouter_serie(1, serie);
+            utilisateurService.ajouter_serie( serie);
             return serie.getId();
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de création de la série");

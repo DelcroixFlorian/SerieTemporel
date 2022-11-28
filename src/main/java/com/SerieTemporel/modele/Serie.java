@@ -17,6 +17,9 @@ public class Serie {
     private long id;
 
     @Column
+    private long id_user;
+
+    @Column
     private String titre;
 
     @Column
@@ -28,9 +31,10 @@ public class Serie {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Evenement> list_event;
 
-    public Serie(String titre, String description){
+    public Serie(String titre, String description, Long id_user){
         this.titre = titre;
         this.description = description;
+        this.id_user = id_user;
         this.list_event = new ArrayList<>();
     }
 
@@ -50,6 +54,9 @@ public class Serie {
         return description;
     }
 
+    public long getId_user() {
+        return id_user;
+    }
 
     public List<Evenement> getList_event() {
         return list_event;

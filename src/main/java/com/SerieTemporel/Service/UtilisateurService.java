@@ -74,17 +74,22 @@ public class UtilisateurService {
 
     }
 
-    public void ajouter_serie(long id_user, Serie serie) throws ExceptionFormatObjetInvalide, ExceptionInterne {
-        if (!utilisateurRepository.existsById(id_user)) {
+    public void ajouter_serie(Serie serie) throws ExceptionFormatObjetInvalide, ExceptionInterne {
+        if (!utilisateurRepository.existsById(serie.getId_user())) {
             throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, ajout de la série impossible.");
         }
         try {
-            Utilisateur user = utilisateurRepository.findById(id_user).orElse(null);
+            Utilisateur user = utilisateurRepository.findById(serie.getId_user()).orElse(null);
             if (user != null && !user.ajouter_serie(serie)) {
                 throw new ExceptionInterne("");
             }
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de suppression");
         }
+    }
+
+
+    public Iterable<Utilisateur> verifier_identite(String identifiant, String mot_de_passe) {
+        return utilisateurRepository.findByIdentifiant(identifiant);
     }
 }

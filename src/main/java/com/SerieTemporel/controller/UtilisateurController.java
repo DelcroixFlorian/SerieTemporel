@@ -71,4 +71,11 @@ public class UtilisateurController {
         }
         return new ResponseEntity("Utilisateur modifié", HttpStatus.OK);
     }
+
+
+    @GetMapping("/utilisateur/connect/{identifiant}")
+    public ResponseEntity connection(@PathVariable String identifiant) {
+
+        return ResponseEntity.ok().body(utilisateurService.verifier_identite(identifiant, ""));
+    }
 }

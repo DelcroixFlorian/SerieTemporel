@@ -25,13 +25,13 @@ public class Utilisateur {
 
     @Column
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="id")
-    // @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name="id_user")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Serie> list_serie;
 
     @Column
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="id")
+    @JoinColumn(name="id_user")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Serie> shared_list_serie;
 
