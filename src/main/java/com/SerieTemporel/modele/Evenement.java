@@ -1,21 +1,30 @@
 package com.SerieTemporel.modele;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
+@Table
 public class Evenement {
 
     @Id
-    @GeneratedValue
+    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id_event;
 
+    @Column
     private long id_serie;
+
+    @Column
     private Date date;
+
+    @Column
     private double valeur;
+
+    @Column
     private String etiquette;
+
+    @Column
     private String commentaire;
 
     /**
@@ -60,5 +69,15 @@ public class Evenement {
 
     public Evenement() {
 
+    }
+
+    @Override
+    public String toString() {
+        return  this.id_event + ";" +
+                this.id_serie + ";" +
+                this.date + ";" +
+                this.valeur + ";" +
+                this.etiquette + ";" +
+                this.commentaire;
     }
 }

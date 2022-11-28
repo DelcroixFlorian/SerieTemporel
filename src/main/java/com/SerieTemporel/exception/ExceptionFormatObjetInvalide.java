@@ -1,4 +1,4 @@
-package com.SerieTemporel.Service;
+package com.SerieTemporel.exception;
 
 public class ExceptionFormatObjetInvalide extends Exception {
     public ExceptionFormatObjetInvalide(String message) {

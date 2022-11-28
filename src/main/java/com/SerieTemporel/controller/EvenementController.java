@@ -1,8 +1,8 @@
 package com.SerieTemporel.controller;
 
 import com.SerieTemporel.Service.EvenementService;
-import com.SerieTemporel.Service.ExceptionFormatObjetInvalide;
-import com.SerieTemporel.Service.ExceptionInterne;
+import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
 import com.SerieTemporel.repository.EvenementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +15,12 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 public class EvenementController {
-    private final EvenementRepo repo;
+
     private final String MESSAGE_ERREUR_INTERNE = "Une erreur interne au serveur est survenue lors du traitement de l'opération, veuillez réessayer. Détail : ";
 
     @Autowired
     EvenementService serviceEvenement;
     
-    public EvenementController(EvenementRepo repo){
-        this.repo = repo;
-    }
-
 
     /**
      * Requête POST pour la création d'un événement
@@ -37,6 +33,7 @@ public class EvenementController {
      *                                 }
      * @return BAD_REQUEST si la série n'existe pas
      *         CREATED si l'objet a pu être créé, renvoi son identifiant
+     *         INTERNAL_SERVER_ERROR si le serveur échoue à créer l'événement
      *
      */
     @PostMapping("/evenement/create")
@@ -49,6 +46,7 @@ public class EvenementController {
                     HttpStatus.CREATED);
 
         } catch (ExceptionInterne e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
 
         } catch (ExceptionFormatObjetInvalide e) {
@@ -81,9 +79,11 @@ public class EvenementController {
 
 
     /**
-     * Requête PUT pour modifiert un événement
-     * @param evt : une représentation de l'événement à modifier
-     * @return
+     * Requête PUT pour modifier un évènement
+     * @param evt : une représentation de l'évènement à modifier
+     * @return BAD_REQUEST si l'évènement n'existe pas
+     *         INTERNAL_SERVER_ERROR si la mise à jour a échouée
+     *         OK si tout s'est bien passé
      */
     @PutMapping("/evenement/update")
     public ResponseEntity update_evenement(@RequestBody Evenement evt) {
@@ -103,17 +103,21 @@ public class EvenementController {
     /**
      * Requête GET récupération d'un événement
      * @param id_event
-     * @return
+     * @return OK (200) Si on a pu récupéré l'évènement
+     *         INTERNAL_SERVER_ERROR si on échoué à récupérer l'évènement
+     *         BAD_REQUEST si l'identifiant de l'évènement est incorrect
      */
     @GetMapping("/evenement/{id_event}")
     public ResponseEntity voir_evenement(@PathVariable("id_event") long id_event) {
-        Evenement evt = null;
         try {
-            evt = serviceEvenement.getEvenement(id_event);
+            Evenement evt = serviceEvenement.getEvenement(id_event);
             return new ResponseEntity(evt, HttpStatus.OK);
 
         } catch (ExceptionInterne e) {
             return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
         }
 
     }

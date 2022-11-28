@@ -1,23 +1,33 @@
 package com.SerieTemporel.modele;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.util.ArrayList;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import java.util.List;
+import javax.persistence.*;
 
 @Entity
+@Table
 public class Serie {
     
     @Id
-    @GeneratedValue
+    @Column
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private long id;
-    
+
+    @Column
     private String titre;
+
+    @Column
     private String description;
 
-    @Convert(converter = ConvertListeSerie.class)
-    private ArrayList<Long> list_event;
+    @Column
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="id_serie")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Evenement> list_event;
 
     public Serie(String titre, String description){
         this.titre = titre;
@@ -27,17 +37,6 @@ public class Serie {
 
     public Serie() {
 
-    }
-
-
-    public String toJson(){
-        
-        return "";
-    }
-
-    public String toHTML(){
-        
-        return "";
     }
 
     public long getId() {
@@ -52,11 +51,12 @@ public class Serie {
         return description;
     }
 
-    public ArrayList<Long> getList_event() {
+
+    public List<Evenement> getList_event() {
         return list_event;
     }
 
-    public void ajouter_evenement_liste(long id) {
-       list_event.add(id);
+    public boolean ajouter_evenement_liste(Evenement evt) {
+       return list_event.add(evt);
     }
 }

@@ -1,4 +1,4 @@
-package com.SerieTemporel.Service;
+package com.SerieTemporel.exception;
 
 public class ExceptionInterne extends Exception {
     public ExceptionInterne(String message) {
