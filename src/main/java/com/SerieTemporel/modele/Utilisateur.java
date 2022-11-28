@@ -55,4 +55,8 @@ public class Utilisateur {
         return identifiant;
     }
 
+    public boolean ajouter_serie(Serie serie_a_ajouter) {
+        return list_serie.add(serie_a_ajouter);
+    }
+
 }

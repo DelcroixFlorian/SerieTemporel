@@ -1,6 +1,5 @@
 package com.SerieTemporel.modele;
 
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

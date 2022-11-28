@@ -15,6 +15,9 @@ public class SerieService {
     @Autowired
     SerieRepo serieRepo;
 
+    @Autowired
+    UtilisateurService utilisateurService;
+
     /**
      * Créer une série
      * @param new_serie Série à insérer dans la base de données
@@ -23,7 +26,9 @@ public class SerieService {
      */
     public long creer_serie(Serie new_serie) throws ExceptionInterne {
         try {
+            // vérifier user
             Serie serie =  serieRepo.save(new_serie);
+            utilisateurService.ajouter_serie(1, serie);
             return serie.getId();
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de création de la série");

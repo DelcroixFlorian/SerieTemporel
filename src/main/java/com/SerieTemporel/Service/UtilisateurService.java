@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
 import com.SerieTemporel.exception.ExceptionInterne;
+import com.SerieTemporel.modele.Serie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,5 +72,19 @@ public class UtilisateurService {
             throw new ExceptionInterne("erreur de suppression");
         }
 
+    }
+
+    public void ajouter_serie(long id_user, Serie serie) throws ExceptionFormatObjetInvalide, ExceptionInterne {
+        if (!utilisateurRepository.existsById(id_user)) {
+            throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, ajout de la série impossible.");
+        }
+        try {
+            Utilisateur user = utilisateurRepository.findById(id_user).orElse(null);
+            if (user != null && !user.ajouter_serie(serie)) {
+                throw new ExceptionInterne("");
+            }
+        } catch (Exception err) {
+            throw new ExceptionInterne("erreur de suppression");
+        }
     }
 }
