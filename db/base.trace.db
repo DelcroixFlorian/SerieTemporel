@@ -1,4 +1,0 @@
-2022-10-27 10:25:11 jdbc[13]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Erreur de syntaxe dans l'instruction SQL "SELECT * FROM UTILISATEUR[*]:"
-Syntax error in SQL statement "SELECT * FROM UTILISATEUR[*]:"; SQL statement:
-SELECT * FROM UTILISATEUR: [42000-214]
