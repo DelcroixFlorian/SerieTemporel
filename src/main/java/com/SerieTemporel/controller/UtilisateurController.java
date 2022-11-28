@@ -2,6 +2,8 @@
 
 package com.SerieTemporel.controller;
 
+import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Utilisateur;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,17 +27,31 @@ public class UtilisateurController {
 
     @GetMapping("/utilisateurs")
     public ResponseEntity getUtilisateurs(){
-        return new ResponseEntity(utilisateurService.getAllUtilisateurs(), HttpStatus.OK);
+        try {
+            return new ResponseEntity(utilisateurService.getAllUtilisateurs(), HttpStatus.OK);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PostMapping("/utilisateur/create")
     public ResponseEntity ajouterUtilisateur(@RequestBody Utilisateur user) {
-        return ResponseEntity.ok("/utilisateur/" + utilisateurService.creerUtilisateur(user));
+        try {
+            return ResponseEntity.ok("/utilisateur/" + utilisateurService.creerUtilisateur(user));
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @GetMapping("/utilisateur/{userid}")
     public ResponseEntity getUtilisateur(@PathVariable("userid") long userid){
-        return new ResponseEntity(utilisateurService.getUtilisateur(userid), HttpStatus.OK);
+        try {
+            return new ResponseEntity(utilisateurService.getUtilisateur(userid), HttpStatus.OK);
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/utilisateur/delete/{userid}")

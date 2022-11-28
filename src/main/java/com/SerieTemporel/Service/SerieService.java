@@ -39,10 +39,10 @@ public class SerieService {
      * @throws ExceptionFormatObjetInvalide : Si la série n'existe pas
      */
     public Serie get_info_serie(long id) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+        if (!serieRepo.existsById(id)) {
+            throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
+        }
         try {
-            if (!serieRepo.existsById(id)) {
-                throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
-            }
             return serieRepo.findById(id).orElse(null);
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de récupération de la série");

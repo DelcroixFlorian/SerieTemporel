@@ -75,15 +75,11 @@ public class EvenementService {
      * @throws ExceptionInterne : Si une exception non gérée survient
      */
     public Evenement getEvenement(long id) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+        if (!evenementRepository.existsById(id)) {
+            throw new ExceptionFormatObjetInvalide("Identifiant de l'évènement incorrect");
+        }
         try {
-            if (!evenementRepository.existsById(id)) {
-                throw new ExceptionFormatObjetInvalide("Identifiant de l'évènement incorrect");
-            }
-            Evenement evt = evenementRepository.findById(id).orElse(null);
-            if (evt == null) {
-                throw new ExceptionFormatObjetInvalide("Identifiant d'évènement incorrect.");
-            }
-            return evt;
+            return evenementRepository.findById(id).orElse(null);
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de récupération de l'événement");
         }

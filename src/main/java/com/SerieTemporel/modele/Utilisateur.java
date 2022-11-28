@@ -1,33 +1,45 @@
 package com.SerieTemporel.modele;
 
-import java.util.ArrayList;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.*;
 
 @Entity
+@Table
 public class Utilisateur {
     
     @Id
     @GeneratedValue
+    @Column
     private long id;
-    
+
+    @Column
     private String identifiant;
+
+    @Column
     private String mdp;
 
-    @Convert(converter= ConvertListeSerie.class)
-    private ArrayList<Integer> list_serie;
+    @Column
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="id")
+    // @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Serie> list_serie;
 
-    @Convert(converter= ConvertListeSerie.class)
-    private ArrayList<Integer> shared_list_serie;
+    @Column
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Serie> shared_list_serie;
 
     public Utilisateur(String identifiant, String mdp){
         this.identifiant = identifiant;
         this.mdp = mdp;
-        this.list_serie = null;
-        this.shared_list_serie = null;
+        this.list_serie = new ArrayList<>();
+        this.shared_list_serie = new ArrayList<>();
     }
 
     public Utilisateur() {
