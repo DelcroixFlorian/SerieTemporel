@@ -1,29 +1,42 @@
 package com.SerieTemporel.modele;
 
+import org.springframework.lang.NonNull;
+
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.Objects;
 
 @Entity
 @Table
 public class Evenement {
 
+    /* Identfiant unique en base de données de l'évènement */
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id_event;
 
+    /* Identifiant de la série de l'évènement (id de clé étrangère) */
     @Column
+    @NonNull
     private long id_serie;
 
+    /* Date d'accomplissement de l'événement */
     @Column
+    @NonNull
     private Date date;
 
+    /* Valeur de l'évènement */
     @Column
+    @NonNull
     private double valeur;
 
+    /* Tag/etiquette de l'événement, permet de faire des tris et filtre */
     @Column
+    @NonNull
     private String etiquette;
 
+    /* Commentaire sur un évèenement peut être null */
     @Column
     private String commentaire;
 
@@ -43,6 +56,7 @@ public class Evenement {
         this.commentaire = commentaire;
     }
 
+    /* Getter */
     public long getId_event() {
         return id_event;
     }
@@ -79,5 +93,18 @@ public class Evenement {
                 this.valeur + ";" +
                 this.etiquette + ";" +
                 this.commentaire;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Evenement evenement = (Evenement) o;
+        return id_event == evenement.id_event;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id_event);
     }
 }

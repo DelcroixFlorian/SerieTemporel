@@ -3,6 +3,7 @@ package com.SerieTemporel.modele;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +18,22 @@ public class Serie {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private long id;
 
+    /* Identifiant de l'utilisateur propriétaire de la série (Clé étrangère) */
     @Column
+    @NonNull
     private long id_user;
 
+    /* Titre de la série */
     @Column
+    @NonNull
     private String titre;
 
+    /* Description de la série */
     @Column
+    @NonNull
     private String description;
 
+    /* Liste des évènements appartenant à la série */
     @Column
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name="id_serie")
@@ -33,15 +41,18 @@ public class Serie {
     private List<Evenement> list_event;
 
 
+    /* Liste des identifiants des utilisateurs avec qui la série est partagée */
     @Column
     @Convert(converter = ConvertListeSerieLong.class)
     private List<Long> liste_utilisateur_partagee;
 
 
+    /* Liste des droits correspondant aux partages utilisateurs */
     @Column
     @Convert(converter = ConvertListeSerie.class)
     private List<String> liste_droit_serie_partagee;
 
+    /* Type de droit de partage */
     @JsonIgnore
     public static final String DROIT_CONSULTATION = "dc";
     @JsonIgnore
@@ -89,10 +100,17 @@ public class Serie {
         return list_event;
     }
 
-    public boolean ajouter_evenement_liste(Evenement evt) {
-       return list_event.add(evt);
+    /* Ajout d'un événement à la liste de la série */
+    public void ajouter_evenement_liste(Evenement evt) {
+       list_event.add(evt);
     }
 
+    /**
+     * Partage de la série avec un nouvel utilisateur
+     * Enregsitrement de l'identifiant de l'utilisateur et des droits associés
+     * @param user : l'utilisateur à qui on va octroyer des droits
+     * @param droit : le type de droit octroyé
+     */
     public void ajouter_partage(Utilisateur user, String droit) {
         liste_utilisateur_partagee.add(user.getId());
         liste_droit_serie_partagee.add(droit);

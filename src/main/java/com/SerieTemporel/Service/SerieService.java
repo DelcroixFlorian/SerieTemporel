@@ -1,6 +1,6 @@
 package com.SerieTemporel.Service;
 
-import com.SerieTemporel.exception.ExcecptionNonAutoriseNonDroit;
+import com.SerieTemporel.exception.ExceptionNonAutoriseNonDroit;
 import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
@@ -27,11 +27,10 @@ public class SerieService {
      * @param new_serie Série à insérer dans la base de données
      * @return long : l'identifiant de la série créée
      * @throws ExceptionInterne Si le serveur échoue à créer la série
+     * @throws ExceptionFormatObjetInvalide Si l'utilisateur qui veut créer la série n'existe pas
      */
     public long creer_serie(Serie new_serie) throws ExceptionInterne, ExceptionFormatObjetInvalide {
-
         utilisateurService.verifier_existe(new_serie);
-
         try {
             Serie serie =  serieRepo.save(new_serie);
             utilisateurService.ajouter_serie( serie);
@@ -45,11 +44,13 @@ public class SerieService {
     /**
      * Récupère les données d'une série
      * @param id : long identifiant de la série
+     * @param id_user : long identifiant de l'utilisateur qui initie la requete
      * @return la série si elle existe
      * @throws ExceptionInterne : Si on rencontre une erreur lors de la récupération
      * @throws ExceptionFormatObjetInvalide : Si la série n'existe pas
+     * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'est pas propriétaire ou si il n'a pas de partage
      */
-    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
+    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         if (!serieRepo.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
         }
@@ -61,14 +62,24 @@ public class SerieService {
                 // Autoriser
                 return serie;
             } else {
-                throw new ExcecptionNonAutoriseNonDroit("Vous n'avez pas le droit d'accéder à cette série !");
+                throw new ExceptionNonAutoriseNonDroit("Vous n'avez pas le droit d'accéder à cette série !");
             }
         } else {
             throw new ExceptionInterne("erreur de récupération de la série");
         }
     }
 
-    public void autoriser_serie(long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
+
+    /**
+     * Vérifier les autorisations nécessaires relatives à une Serie
+     * @param id_serie : identifiant de la Serie concerne
+     * @param id_user : identifiant de l'utilisateur qui tente d'accéder à la Serie
+     * @param droit : droit nécessaire pour réaliser l'action pour laquelle on vérifie les autorisations
+     * @throws ExceptionInterne : Si on arrive pas à récupérer la série correspondant à l'identifiant
+     * @throws ExceptionFormatObjetInvalide : Si le numéro de la Serie n'existe pas
+     * @throws ExceptionNonAutoriseNonDroit : Si les droits sont insuffisants (ou inexistant)
+     */
+    public void autoriser_serie(long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         if (!serieRepo.existsById(id_serie)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
         }
@@ -81,25 +92,43 @@ public class SerieService {
                   && index == -1) // Non partagé
                 || id_user != serie.getId_user() && index != -1 && !serie.getListe_droit_serie_partagee().get(index).equals(droit)) // Partagé mais droits insuffisants
             {
-                throw new ExcecptionNonAutoriseNonDroit("Vous n'avez pas le droit d'accéder à cette série !");
+                throw new ExceptionNonAutoriseNonDroit("Vous n'avez pas le droit d'accéder à cette série !");
             }
         } else {
             throw new ExceptionInterne("erreur de récupération de la série");
         }
     }
 
+
+    /**
+     * Statue sur l'existence d'une série dans la base de données en foncion de son identifiant
+     * @param id_serie : long, identifiant de la série dont on cherche à vérifier l'existence
+     * @return True si la serie exixte en base de données
+     */
     public boolean serie_existe(Long id_serie) {
         return serieRepo.existsById(id_serie);
     }
 
+    /**
+     * Ajoute un évènement à la serie
+     * @param serie : serie sur laquelle on veut ajouter un événement
+     * @param event : événement à ajouter à la serie
+     */
     public void mettre_a_ajour_liste(Serie serie, Evenement event) {
-
         serie.ajouter_evenement_liste(event);
         serieRepo.save(serie);
     }
 
 
-    public void supprimer_serie(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExcecptionNonAutoriseNonDroit {
+    /**
+     * Suppression d'une Serie
+     * @param id : identifiant de la serie à supprimer
+     * @param id_user : identifiant de l'utilisateur initiant la suppresion
+     * @throws ExceptionFormatObjetInvalide : Si la serie n'existe pas
+     * @throws ExceptionInterne : si la suppresion échoue
+     * @throws ExceptionNonAutoriseNonDroit : si l'utilisateur n'a pas les droits d'accés à la serie
+     */
+    public void supprimer_serie(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
         if (!serieRepo.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Erreur, la série n'existe pas, suppression impossible.");
         }
@@ -113,7 +142,18 @@ public class SerieService {
         }
     }
 
-    public void partager_serie(long id_user_a_partager, long id_serie, int droit, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
+
+    /**
+     * Partage d'une serie a un nouvel utilisateur
+     * @param id_user_a_partager : identifiant de l'utilisateur à qui on souhaite donner les droits
+     * @param id_serie : identifiant de la serie qu'on souhaite partager
+     * @param droit : droit à octroyer à travers ce partage
+     * @param id_user : idenfifiant de l'utilisateur initiant le partage
+     * @throws ExceptionInterne : Si on arrive pas récupérer les différentes entités
+     * @throws ExceptionFormatObjetInvalide : Si on demande des droits inconnus
+     * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour partager la serie
+     */
+    public void partager_serie(long id_user_a_partager, long id_serie, int droit, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 
         if (user_partager == null) {

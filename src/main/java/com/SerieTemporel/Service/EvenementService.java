@@ -1,6 +1,6 @@
 package com.SerieTemporel.Service;
 
-import com.SerieTemporel.exception.ExcecptionNonAutoriseNonDroit;
+import com.SerieTemporel.exception.ExceptionNonAutoriseNonDroit;
 import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
@@ -21,22 +21,25 @@ public class EvenementService {
      * Création d'un évènement en base de données
      * On lie l'évènement à sa série
      * @param event : l'évènement à créer
+     * @param id_user : l'identifiant de l'utilisateur qui initie la création
      * @return un long identifiant l'évènement
      * @throws ExceptionInterne : Si une exception non gérée survient
      * @throws ExceptionFormatObjetInvalide : Si l'identifiant de la série ne correspond pas à une série existante
+     * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut ajouter un évènement
      */
-    public long creerEvenement(Evenement event, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
-        // Récupération de l'id de la série et vérification
+    public long creerEvenement(Evenement event, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+        // Récupération de l'id de la série et vérification des droits
         long id_serie = event.getId_serie();
         if (serieService.serie_existe(id_serie)) {
             Serie serie_concerne = serieService.get_info_serie(id_serie, id_user);
+            serieService.autoriser_serie(event.getId_serie(), id_user, Serie.DROIT_MODIFICATION);
+
             try {
                 // Création de l'évènement
                 Evenement evt = evenementRepository.save(event);
                 long id_evt = evt.getId_event();
 
                 // Ajout de l'évènement à la liste de sa série
-
                 serieService.mettre_a_ajour_liste(serie_concerne, event);
                 return id_evt;
 
@@ -52,10 +55,12 @@ public class EvenementService {
     /**
      * Suppresion d'un événement
      * @param id : identifiant de l'évènement à supprimer
+     * @param id_user : l'identifiant de l'utilisateur qui initie la création
      * @throws ExceptionInterne : Si une exception non gérée survient
      * @throws ExceptionFormatObjetInvalide : Si l'évènement à supprimer n'existe pas
+     * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut supprimer un évènement
      */
-    public void supprimerEvenement(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExcecptionNonAutoriseNonDroit {
+    public void supprimerEvenement(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Erreur, l'événement n'existe pas, suppression impossible.");
         }
@@ -73,10 +78,13 @@ public class EvenementService {
     /**
      * Récupération d'un événement dans la base de données
      * @param id : identifiant de l'événement à récupérer
+     * @param id_user : l'identifiant de l'utilisateur qui initie la création
      * @return l'événement ou null si non existant
      * @throws ExceptionInterne : Si une exception non gérée survient
+     * @throws ExceptionFormatObjetInvalide : si l'identifiant ne correspond à rien
+     * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut consulter un évènement
      */
-    public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
+    public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de l'évènement incorrect");
         }
@@ -91,11 +99,13 @@ public class EvenementService {
     /**
      * Mise à jour d'un événement
      * @param event : l'évenement à mettre à jour (contenant toutes les données)
+     * @param id_user : l'identifiant de l'utilisateur qui initie la création
      * @return le nouvel événement mis à jour
      * @throws ExceptionInterne : Si une exception non gérée survient
      * @throws ExceptionFormatObjetInvalide : Si l'évènement n'existe pas
+     * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut mettre à jour un évènement
      */
-    public Evenement updateEvenement(Evenement event, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExcecptionNonAutoriseNonDroit {
+    public Evenement updateEvenement(Evenement event, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
         if (!evenementRepository.existsById(event.getId_event())) {
             throw new ExceptionFormatObjetInvalide("Erreur, l'événement n'exite pas, mise à jour impossible.");
         }
