@@ -17,6 +17,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.7.5'
 	implementation 'org.springframework.boot:spring-boot-devtools:2.7.5'
 	implementation 'com.h2database:h2:2.1.214'
+	implementation 'org.mindrot:jbcrypt:0.4'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.5'
 }
 

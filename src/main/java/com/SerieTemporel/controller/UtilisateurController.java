@@ -73,9 +73,14 @@ public class UtilisateurController {
     }
 
 
-    @GetMapping("/utilisateur/connect/{identifiant}")
-    public ResponseEntity connection(@PathVariable String identifiant) {
+    @GetMapping("/utilisateur/connect")
+    public ResponseEntity connection(@RequestBody Utilisateur user) {
+        try {
+            long id_user = utilisateurService.verifier_identite(user.getIdentifiant(), user.getMdp());
+            return ResponseEntity.ok().body("Votre numéro d'utilisateur :" + id_user);
 
-        return ResponseEntity.ok().body(utilisateurService.verifier_identite(identifiant, ""));
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

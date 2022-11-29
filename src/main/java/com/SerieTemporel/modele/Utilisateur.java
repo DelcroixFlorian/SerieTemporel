@@ -50,6 +50,21 @@ public class Utilisateur {
         return id;
     }
 
+    public String getMdp() {
+        return mdp;
+    }
+
+    public void setMdp(String mdp) {
+        this.mdp = mdp;
+    }
+
+    public List<Serie> getList_serie() {
+        return list_serie;
+    }
+
+    public List<Serie> getShared_list_serie() {
+        return shared_list_serie;
+    }
 
     public String getIdentifiant(){
         return identifiant;
