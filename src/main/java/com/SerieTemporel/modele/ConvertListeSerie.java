@@ -31,11 +31,7 @@ public class ConvertListeSerie implements AttributeConverter<List<String>, Strin
         for (String elt : bd_split) {
             if (!elt.isEmpty() && !elt.isBlank()) {
                 String[] ref = elt.split(":");
-                System.out.println("Elt : " + elt);
                 if (ref.length == 2) {
-                    System.out.println(ref.length);
-                    System.out.println(ref[0]);
-                    System.out.println(ref[1]);
                     int index = parseInt(ref[0]);
                     String droit = ref[1];
                     entity.add(index, droit);

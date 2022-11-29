@@ -5,9 +5,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import javax.persistence.*;
 
 @Entity
@@ -45,9 +43,9 @@ public class Serie {
     private List<String> liste_droit_serie_partagee;
 
     @JsonIgnore
-    public final String DROIT_CONSULTATION = "dc";
+    public static final String DROIT_CONSULTATION = "dc";
     @JsonIgnore
-    public final String DROIT_MODIFICATION = "dm";
+    public static final String DROIT_MODIFICATION = "dm";
 
 
     public Serie(String titre, String description, Long id_user){
