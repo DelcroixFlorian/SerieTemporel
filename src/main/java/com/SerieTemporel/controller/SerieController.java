@@ -4,6 +4,7 @@ import com.SerieTemporel.Service.SerieService;
 import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Serie;
+import com.SerieTemporel.modele.Utilisateur;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class SerieController {
 
         } catch (ExceptionInterne e) {
             return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionFormatObjetInvalide exceptionFormatObjetInvalide) {
+            exceptionFormatObjetInvalide.printStackTrace();
+            return ResponseEntity.badRequest().body(exceptionFormatObjetInvalide.getMessage());
         }
 
     }
@@ -86,5 +90,31 @@ public class SerieController {
         } catch (ExceptionFormatObjetInvalide e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/serie/{id_serie}/partage_consultation/{id_user}")
+    public ResponseEntity partager_serie_consultation(@PathVariable long id_user, @PathVariable long id_serie) {
+        try {
+            serieService.partager_serie(id_user, id_serie, 1);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return ResponseEntity.ok().body("");
+    }
+
+    @PostMapping("/serie/{id_serie}/partage_modification/{id_user}")
+    public ResponseEntity partager_serie_modification(@PathVariable long id_user, @PathVariable long id_serie) {
+        try {
+            serieService.partager_serie(id_user, id_serie, 2);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return ResponseEntity.ok().body("");
     }
 }

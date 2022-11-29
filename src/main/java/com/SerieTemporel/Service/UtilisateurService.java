@@ -19,6 +19,9 @@ public class UtilisateurService {
     @Autowired
     UtilisateurRepo utilisateurRepository;
 
+    @Autowired
+    SerieService serieService;
+
     public List getAllUtilisateurs() throws ExceptionInterne {
         try {
             List utilisateurs = new ArrayList();
@@ -77,17 +80,11 @@ public class UtilisateurService {
 
     }
 
-    public void ajouter_serie(Serie serie) throws ExceptionFormatObjetInvalide, ExceptionInterne {
-        if (!utilisateurRepository.existsById(serie.getId_user())) {
-            throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, ajout de la série impossible.");
-        }
+    public void ajouter_serie(Serie serie) throws ExceptionInterne {
         try {
-            Utilisateur user = utilisateurRepository.findById(serie.getId_user()).orElse(null);
-            if (user != null && !user.ajouter_serie(serie)) {
-                throw new ExceptionInterne("");
-            }
+            utilisateurRepository.findById(serie.getId_user()).ifPresent(user -> user.ajouter_serie(serie));
         } catch (Exception err) {
-            throw new ExceptionInterne("erreur de suppression");
+            throw new ExceptionInterne("erreur d'ajout de la serie à l'utilisateur");
         }
     }
 
@@ -103,4 +100,11 @@ public class UtilisateurService {
         }
         throw new ExceptionFormatObjetInvalide("Aucun utilisateur ne correspond à cet identifiant.");
     }
+
+    public void verifier_existe(Serie serie) throws ExceptionFormatObjetInvalide {
+        if (!utilisateurRepository.existsById(serie.getId_user())) {
+            throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, création de la série impossible.");
+        }
+    }
+
 }

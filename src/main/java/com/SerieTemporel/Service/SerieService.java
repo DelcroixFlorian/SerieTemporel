@@ -4,6 +4,7 @@ import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
 import com.SerieTemporel.modele.Serie;
+import com.SerieTemporel.modele.Utilisateur;
 import com.SerieTemporel.repository.SerieRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,11 @@ public class SerieService {
      * @return long : l'identifiant de la série créée
      * @throws ExceptionInterne Si le serveur échoue à créer la série
      */
-    public long creer_serie(Serie new_serie) throws ExceptionInterne {
+    public long creer_serie(Serie new_serie) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+
+        utilisateurService.verifier_existe(new_serie);
+
         try {
-            // vérifier user
             Serie serie =  serieRepo.save(new_serie);
             utilisateurService.ajouter_serie( serie);
             return serie.getId();
@@ -74,6 +77,30 @@ public class SerieService {
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de suppression");
         }
+    }
+
+    public void partager_serie(long id_user_a_partager, long id_serie, int droit) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+        Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
+
+        if (user_partager == null) {
+            throw new ExceptionInterne("Erreur de récupération de l'utilisateur");
+        }
+
+        Serie serie_a_partager = get_info_serie(id_serie);
+
+        if (serie_a_partager == null) {
+            throw new ExceptionInterne("Erreur de récupération de la série");
+        }
+
+        String droit_str;
+        if (droit == 1) {
+            droit_str = serie_a_partager.DROIT_CONSULTATION;
+        } else if (droit == 2) {
+            droit_str = serie_a_partager.DROIT_MODIFICATION;
+        } else {
+            throw new ExceptionFormatObjetInvalide("Demande de droit inconnu.");
+        }
+        serie_a_partager.ajouter_partage(user_partager, droit_str);
     }
 
 }

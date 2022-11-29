@@ -27,19 +27,13 @@ public class Utilisateur {
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name="id_user")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Serie> list_serie;
+    private List<Serie> liste_serie;
 
-    @Column
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_user")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Serie> shared_list_serie;
 
     public Utilisateur(String identifiant, String mdp){
         this.identifiant = identifiant;
         this.mdp = mdp;
-        this.list_serie = new ArrayList<>();
-        this.shared_list_serie = new ArrayList<>();
+        this.liste_serie = new ArrayList<>();
     }
 
     public Utilisateur() {
@@ -59,19 +53,19 @@ public class Utilisateur {
     }
 
     public List<Serie> getList_serie() {
-        return list_serie;
+        return liste_serie;
     }
 
-    public List<Serie> getShared_list_serie() {
-        return shared_list_serie;
-    }
 
     public String getIdentifiant(){
         return identifiant;
     }
 
-    public boolean ajouter_serie(Serie serie_a_ajouter) {
-        return list_serie.add(serie_a_ajouter);
+    public void ajouter_serie(Serie serie_a_ajouter) {
+        liste_serie.add((int) serie_a_ajouter.getId(), serie_a_ajouter);
     }
+
+
+
 
 }

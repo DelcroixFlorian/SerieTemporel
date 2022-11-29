@@ -4,7 +4,9 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.*;
 
 @Entity
@@ -31,11 +33,25 @@ public class Serie {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Evenement> list_event;
 
+
+    @Column
+    @Convert(converter = ConvertListeSerieLong.class)
+    private List<Long> liste_utilisateur_partagee;
+
+
+    @Column
+    @Convert(converter = ConvertListeSerie.class)
+    private List<String> liste_droit_serie_partagee;
+
+    public final String DROIT_CONSULTATION = "dc";
+    public final String DROIT_MODIFICATION = "dm";
     public Serie(String titre, String description, Long id_user){
         this.titre = titre;
         this.description = description;
         this.id_user = id_user;
         this.list_event = new ArrayList<>();
+        this.liste_utilisateur_partagee = new ArrayList<>();
+        this.liste_droit_serie_partagee = new ArrayList<>();
     }
 
     public Serie() {
@@ -64,5 +80,10 @@ public class Serie {
 
     public boolean ajouter_evenement_liste(Evenement evt) {
        return list_event.add(evt);
+    }
+
+    public void ajouter_partage(Utilisateur user, String droit) {
+        liste_utilisateur_partagee.add(user.getId());
+        liste_droit_serie_partagee.add(droit);
     }
 }
