@@ -1,5 +1,6 @@
 package com.SerieTemporel.modele;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -43,8 +44,12 @@ public class Serie {
     @Convert(converter = ConvertListeSerie.class)
     private List<String> liste_droit_serie_partagee;
 
+    @JsonIgnore
     public final String DROIT_CONSULTATION = "dc";
+    @JsonIgnore
     public final String DROIT_MODIFICATION = "dm";
+
+
     public Serie(String titre, String description, Long id_user){
         this.titre = titre;
         this.description = description;
@@ -68,6 +73,14 @@ public class Serie {
 
     public String getDescription() {
         return description;
+    }
+
+    public List<Long> getListe_utilisateur_partagee() {
+        return liste_utilisateur_partagee;
+    }
+
+    public List<String> getListe_droit_serie_partagee() {
+        return liste_droit_serie_partagee;
     }
 
     public long getId_user() {

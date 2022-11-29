@@ -101,6 +101,7 @@ public class SerieService {
             throw new ExceptionFormatObjetInvalide("Demande de droit inconnu.");
         }
         serie_a_partager.ajouter_partage(user_partager, droit_str);
+        serieRepo.save(serie_a_partager);
     }
 
 }
