@@ -16,24 +16,17 @@ import java.util.Arrays;
 public class TestUtilisateur {
     
     
-    Utilisateur user;
-    Serie serie;
+    Utilisateur user = new Utilisateur("monid","monmotdepasse");
+    Serie serie = new Serie("montitre", "madesccription", user.getId());
     
-
-    @BeforeAll
-    public void init(){
-        user = new Utilisateur("monid","monmotdepasse");
-        serie = new Serie("montitre", "madesccription", user.getId());
-    }
-
     @Test
     public void test_creation(){
-        assertThat(user.getId()).isEqualTo(1);
+        assertThat(user.getId()).isEqualTo(0);
     }
 
     @Test
     public void test_getid(){
-        assertThat(user.getId()).isEqualTo(1);
+        assertThat(user.getId()).isEqualTo(0);
     }
 
     @Test
@@ -49,6 +42,7 @@ public class TestUtilisateur {
     
     @Test
     public void test_getListSerie(){
+        user.ajouter_serie(serie);
         assertThat(user.getList_serie()).isEqualTo(Arrays.asList(serie));
     }
     

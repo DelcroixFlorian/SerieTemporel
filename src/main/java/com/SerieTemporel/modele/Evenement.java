@@ -18,7 +18,7 @@ public class Evenement {
 
     /* Identifiant de la série de l'évènement (id de clé étrangère) */
     @Column
-    @NonNull
+    //@NonNull
     private long id_serie;
 
     /* Date d'accomplissement de l'événement */
@@ -28,7 +28,7 @@ public class Evenement {
 
     /* Valeur de l'évènement */
     @Column
-    @NonNull
+    //@NonNull
     private double valeur;
 
     /* Tag/etiquette de l'événement, permet de faire des tris et filtre */

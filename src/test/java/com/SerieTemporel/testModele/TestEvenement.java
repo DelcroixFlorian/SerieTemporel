@@ -12,14 +12,9 @@ import java.sql.Date;
 @Testable
 public class TestEvenement {
 
-    Date date;
-    Evenement event;
+    Date date = Date.valueOf("2000-12-12");
+    Evenement event = new Evenement(1, date, 15.0,"ici", "la");
 
-    @BeforeAll
-    public void init(){
-        date = Date.valueOf("2000-12-12");
-        event = new Evenement(1, date, 15.0,"ici", "la");
-    }
 
     @Test
     public void test_creation() {
@@ -28,7 +23,7 @@ public class TestEvenement {
 
     @Test
     public void test_getid(){
-        assertThat(event.getId_event()).isEqualTo(1);
+        assertThat(event.getId_event()).isEqualTo(0);
     }
 
     @Test
@@ -48,7 +43,7 @@ public class TestEvenement {
     
     @Test
     public void test_getEtiquette(){
-        assertThat(event.getId_serie()).isEqualTo("ici");
+        assertThat(event.getEtiquette()).isEqualTo("ici");
     }
     
     @Test
@@ -58,6 +53,6 @@ public class TestEvenement {
 
     @Test
     public void test_toString(){
-        assertThat(event.toString()).isEqualTo("1;1;2000-12-12;15.0;ici;la");
+        assertThat(event.toString()).isEqualTo("0;1;2000-12-12;15.0;ici;la");
     }
 }

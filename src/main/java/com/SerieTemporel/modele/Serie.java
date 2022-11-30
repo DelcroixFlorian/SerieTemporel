@@ -20,7 +20,7 @@ public class Serie {
 
     /* Identifiant de l'utilisateur propriétaire de la série (Clé étrangère) */
     @Column
-    @NonNull
+    //@NonNull
     private long id_user;
 
     /* Titre de la série */
