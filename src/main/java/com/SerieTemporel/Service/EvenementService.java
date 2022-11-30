@@ -85,12 +85,8 @@ public class EvenementService {
      * @throws ExceptionFormatObjetInvalide : si l'identifiant ne correspond à rien
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut consulter un évènement
      */
-<<<<<<< Updated upstream
-    public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
-=======
     @Cacheable("evenement")
-    public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
->>>>>>> Stashed changes
+    public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de l'évènement incorrect");
         }

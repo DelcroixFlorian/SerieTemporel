@@ -51,12 +51,8 @@ public class SerieService {
      * @throws ExceptionFormatObjetInvalide : Si la série n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'est pas propriétaire ou si il n'a pas de partage
      */
-<<<<<<< Updated upstream
-    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
-=======
     @Cacheable("serie")
-    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
->>>>>>> Stashed changes
+    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         if (!serieRepo.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
         }
