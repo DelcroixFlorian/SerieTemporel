@@ -1,6 +1,5 @@
 package com.SerieTemporel.testModele;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;

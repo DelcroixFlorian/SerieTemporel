@@ -2,7 +2,6 @@ package com.SerieTemporel.testModele;
 
 import com.SerieTemporel.modele.Evenement;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;
 import static org.assertj.core.api.Assertions.*;
