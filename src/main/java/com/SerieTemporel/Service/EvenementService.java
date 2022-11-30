@@ -7,6 +7,7 @@ import com.SerieTemporel.modele.Evenement;
 import com.SerieTemporel.modele.Serie;
 import com.SerieTemporel.repository.EvenementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -84,7 +85,12 @@ public class EvenementService {
      * @throws ExceptionFormatObjetInvalide : si l'identifiant ne correspond à rien
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut consulter un évènement
      */
+<<<<<<< Updated upstream
     public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+=======
+    @Cacheable("evenement")
+    public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
+>>>>>>> Stashed changes
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de l'évènement incorrect");
         }

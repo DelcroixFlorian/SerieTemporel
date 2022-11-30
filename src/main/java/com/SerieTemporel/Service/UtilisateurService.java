@@ -8,6 +8,7 @@ import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Serie;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.SerieTemporel.modele.Utilisateur;
@@ -36,6 +37,7 @@ public class UtilisateurService {
         }
     }
 
+<<<<<<< Updated upstream
 
     /**
      * Récupère un utilisateur
@@ -44,6 +46,9 @@ public class UtilisateurService {
      * @throws ExceptionFormatObjetInvalide : si l'utilisateur n'existe pas
      * @throws ExceptionInterne : si on arrive pas à récupérer l'utilisateur
      */
+=======
+    @Cacheable("utilisateur")
+>>>>>>> Stashed changes
     public Utilisateur getUtilisateur(Long userid) throws ExceptionFormatObjetInvalide, ExceptionInterne {
         if (!utilisateurRepository.existsById(userid)) {
             throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, mise à jour impossible.");

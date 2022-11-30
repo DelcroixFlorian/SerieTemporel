@@ -8,6 +8,7 @@ import com.SerieTemporel.modele.Serie;
 import com.SerieTemporel.modele.Utilisateur;
 import com.SerieTemporel.repository.SerieRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,7 +51,12 @@ public class SerieService {
      * @throws ExceptionFormatObjetInvalide : Si la série n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'est pas propriétaire ou si il n'a pas de partage
      */
+<<<<<<< Updated upstream
     public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+=======
+    @Cacheable("serie")
+    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExcecptionNonAutoriseNonDroit {
+>>>>>>> Stashed changes
         if (!serieRepo.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
         }
