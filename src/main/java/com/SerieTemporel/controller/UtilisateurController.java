@@ -49,9 +49,11 @@ public class UtilisateurController {
     @PostMapping("/utilisateur/create")
     public ResponseEntity ajouterUtilisateur(@RequestBody Utilisateur user) {
         try {
-            return ResponseEntity.ok("/utilisateur/" + utilisateurService.creerUtilisateur(user));
+            long id_new_user = utilisateurService.creerUtilisateur(user);
+            return new ResponseEntity("id de l'utilisateur : " + id_new_user, HttpStatus.CREATED);
 
         } catch (ExceptionInterne e) {
+
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

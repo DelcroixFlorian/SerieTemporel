@@ -34,6 +34,6 @@ public class TestControleurSerie {
 
     @Test
     public void test_create_serie() {
-        //seriecontroller.perform(MockMvcRequestBuilders.post(""));
+        
     }
 }
