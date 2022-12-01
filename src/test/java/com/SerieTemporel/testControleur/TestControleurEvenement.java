@@ -62,7 +62,7 @@ public class TestControleurEvenement {
 
         evenementService.creerEvenement(event, 1);
         eventcontroller.perform(MockMvcRequestBuilders
-                         .put("/1/update/evenement")
+                         .put("/1/evenement/update")
                          .content("{\"id_serie\": 1,\"date\": \"2022-10-24\", \"valeur\": 150.0, \"etiquette\" :  \"Escrime\", \"commentaire\" : \"\" }")
                          .contentType(MediaType.APPLICATION_JSON)
                          .accept(MediaType.APPLICATION_JSON))
@@ -70,8 +70,10 @@ public class TestControleurEvenement {
     }
 
     @Test
-    public void test_get_evenement() {
-
+    public void test_get_evenement() throws Exception {
+        eventcontroller.perform(MockMvcRequestBuilders
+                        .get("/1/evenement/1"))
+                        .andExpect(status().isOk());
     }
 
     public static String asJsonString(final Object obj) {

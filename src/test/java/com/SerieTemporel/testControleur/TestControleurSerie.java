@@ -6,6 +6,8 @@ import org.junit.platform.commons.annotation.Testable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
 
 
 import static org.assertj.core.api.Assertions.*;
@@ -20,7 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 public class TestControleurSerie {
 
     @Autowired
-    private SerieController seriecontroller;
+    private MockMvc seriecontroller;
 
     @MockBean
     private SerieService serieService;
@@ -32,6 +34,6 @@ public class TestControleurSerie {
 
     @Test
     public void test_create_serie() {
-        seriecontroller.perform(MockMvcRequestBuilders.post(""));
+        //seriecontroller.perform(MockMvcRequestBuilders.post(""));
     }
 }
