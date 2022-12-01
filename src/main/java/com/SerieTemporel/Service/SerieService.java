@@ -180,4 +180,58 @@ public class SerieService {
         serieRepo.save(serie_a_partager);
     }
 
+
+    /**
+     * Modifie le partage d'une serie
+     * @param id_user_a_partager : identifiant de l'utilisateur à qui on souhaite modifier les droits
+     * @param id_serie : identifiant de la serie partagée
+     * @param droit : droit à octroyer à travers ce partage
+     * @param id_user : idenfifiant de l'utilisateur initiant le partage
+     * @throws ExceptionInterne : Si on arrive pas récupérer les différentes entités
+     * @throws ExceptionFormatObjetInvalide : Si on demande des droits inconnus
+     * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour partager la serie
+     */
+    public void modifier_partage_serie(long id_user_a_partager, long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+        Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
+
+        if (user_partager == null) {
+            throw new ExceptionInterne("Erreur de récupération de l'utilisateur");
+        }
+
+        Serie serie_a_partager = get_info_serie(id_serie, id_user);
+
+        if (serie_a_partager == null) {
+            throw new ExceptionInterne("Erreur de récupération de la série");
+        }
+
+        serie_a_partager.modifier_partage(user_partager, droit);
+        serieRepo.save(serie_a_partager);
+    }
+
+    /**
+     * Supprime le partage d'une serie
+     * @param id_user_a_partager : identifiant de l'utilisateur à qui on souhaite supprimer les droits
+     * @param id_serie : identifiant de la serie partagée
+     * @param id_user : idenfifiant de l'utilisateur initiant le partage
+     * @throws ExceptionInterne : Si on arrive pas récupérer les différentes entités
+     * @throws ExceptionFormatObjetInvalide :
+     * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour supprimer le partage de la serie
+     */
+    public void supprimer_partage_serie(long id_user_a_partager, long id_serie, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+        Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
+
+        if (user_partager == null) {
+            throw new ExceptionInterne("Erreur de récupération de l'utilisateur");
+        }
+
+        Serie serie_a_partager = get_info_serie(id_serie, id_user);
+
+        if (serie_a_partager == null) {
+            throw new ExceptionInterne("Erreur de récupération de la série");
+        }
+
+        serie_a_partager.supprimer_partage(user_partager);
+        serieRepo.save(serie_a_partager);
+    }
+
 }

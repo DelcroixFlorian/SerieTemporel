@@ -175,4 +175,74 @@ public class SerieController {
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
+    /**
+     * Modification d'une serie avec modification des droits de partage de la serie pour DROIT_MODIFICATION
+     * @param id_user_init : utilisateur initiant la demande
+     * @param id_user : utilisateur qui recevra les droits de partage
+     * @param id_serie : identifiant de la serie concernée par la serie
+     * @return NO_CONTENT si le partage réussi
+     *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
+     *         NOT_FOUND si la serie ou un utilisateur n'existe pas
+     *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
+     */
+    @PatchMapping("/{id_user_init}/serie/{id_serie}/modifier_type_partage_en_modification/{id_user}")
+    public ResponseEntity modifier_partage_serie_modification(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+        try {
+            serieService.modifier_partage_serie(id_user, id_serie, id_user_init, Serie.DROIT_MODIFICATION);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
+    /**
+     * Modification d'une serie avec modification des droits de partage de la serie pour DROIT_CONSULTATION
+     * @param id_user_init : utilisateur initiant la demande
+     * @param id_user : utilisateur qui recevra les droits de partage
+     * @param id_serie : identifiant de la serie concernée par la serie
+     * @return NO_CONTENT si le partage réussi
+     *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
+     *         NOT_FOUND si la serie ou un utilisateur n'existe pas
+     *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
+     */
+    @PatchMapping("/{id_user_init}/serie/{id_serie}/modifier_type_partage_en_consultation/{id_user}")
+    public ResponseEntity modifier_partage_serie_consultation(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+        try {
+            serieService.modifier_partage_serie(id_user, id_serie, id_user_init, Serie.DROIT_CONSULTATION);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping("/{id_user_init}/serie/{id_serie}/supprimer_partage/{id_user}")
+    public ResponseEntity suuprimer_partage_serie(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+        try {
+            serieService.supprimer_partage_serie(id_user, id_serie, id_user_init);
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

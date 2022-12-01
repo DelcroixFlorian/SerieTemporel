@@ -1,5 +1,6 @@
 package com.SerieTemporel.modele;
 
+import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -114,5 +115,35 @@ public class Serie {
     public void ajouter_partage(Utilisateur user, String droit) {
         liste_utilisateur_partagee.add(user.getId());
         liste_droit_serie_partagee.add(droit);
+    }
+
+    /**
+     * Modification du partage de la série
+     * Modification des droits associés
+     * @param user : l'utilisateur à qui est partagé la série
+     * @param nouveau_droit : le type de droit octroyé
+     */
+    public void modifier_partage(Utilisateur user, String nouveau_droit) throws ExceptionFormatObjetInvalide {
+        int index = liste_utilisateur_partagee.indexOf(user.getId());
+        if (index != -1) {
+            liste_droit_serie_partagee.set(index, nouveau_droit);
+        } else {
+            throw new ExceptionFormatObjetInvalide("Cette série n'est pas partagée");
+        }
+    }
+
+
+    /**
+     * Suppresion du partage de la série
+     * @param user : l'utilisateur à qui est partagé la série
+     */
+    public void supprimer_partage(Utilisateur user) throws ExceptionFormatObjetInvalide {
+        int index = liste_utilisateur_partagee.indexOf(user.getId());
+        if (index != -1) {
+            liste_droit_serie_partagee.remove(index);
+            liste_utilisateur_partagee.remove(index);
+        } else {
+            throw new ExceptionFormatObjetInvalide("Cette série n'est pas partagée");
+        }
     }
 }
