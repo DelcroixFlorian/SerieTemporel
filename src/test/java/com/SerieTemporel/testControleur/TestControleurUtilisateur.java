@@ -33,7 +33,7 @@ public class TestControleurUtilisateur {
     @Test
     public void test_ajouterUtilisateur() throws Exception {
         usercontroller.perform( MockMvcRequestBuilders
-                        .post("/utilisateur/create")
+                        .post("/utilisateur")
                         .content("{\"identifiant\": \"monidentifiant\",\"mdp\": \"monmotdepasse\"}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -57,7 +57,7 @@ public class TestControleurUtilisateur {
     @Test
     public void test_deleteUtilisateur() throws Exception {
         usercontroller.perform( MockMvcRequestBuilders
-                        .delete("/utilisateur/delete/1"))
+                        .delete("/utilisateur/1"))
                        .andExpect(status().isOk());
     }
 
@@ -65,7 +65,7 @@ public class TestControleurUtilisateur {
     public void test_updateUtilisateur() throws Exception {
         
         usercontroller.perform(MockMvcRequestBuilders
-                         .put("/utilisateur/update")
+                         .put("/utilisateur")
                          .content("{\"identifiant\": \"monidentifiant\",\"mdp\": \"monmotdepasse\"}")
                          .contentType(MediaType.APPLICATION_JSON)
                          .accept(MediaType.APPLICATION_JSON))

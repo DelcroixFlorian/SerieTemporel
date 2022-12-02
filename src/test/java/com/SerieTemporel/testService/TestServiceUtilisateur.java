@@ -20,7 +20,7 @@ import com.SerieTemporel.Service.UtilisateurService;
 import com.SerieTemporel.modele.Utilisateur;
 import com.SerieTemporel.repository.UtilisateurRepo;
 
-@RunWith(SpringRunner.class)
+/*@RunWith(SpringRunner.class)
 public class TestServiceUtilisateur {
 
     @TestConfiguration
@@ -46,4 +46,4 @@ public class TestServiceUtilisateur {
 
     /*@Test
     public void */
-}
+//}

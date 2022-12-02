@@ -37,7 +37,7 @@ public class TestControleurEvenement {
     @Test
     public void test_create_evenement() throws Exception {
         eventcontroller.perform( MockMvcRequestBuilders
-                        .post("/1/evenement/create")
+                        .post("/1/evenement")
                         .content("{\"id_serie\": 1,\"date\": \"2022-10-24\", \"valeur\": 150.0, \"etiquette\" :  \"Escrime\", \"commentaire\" : \"\" }")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -47,7 +47,7 @@ public class TestControleurEvenement {
     @Test
     public void test_delete_evenement() throws Exception {
         eventcontroller.perform( MockMvcRequestBuilders
-                        .delete("/1/evenement/delete/1"))
+                        .delete("/1/evenement/1"))
                        .andExpect(status().isNoContent());
     }
 
@@ -58,7 +58,7 @@ public class TestControleurEvenement {
 
         evenementService.creerEvenement(event, 1);
         eventcontroller.perform(MockMvcRequestBuilders
-                         .put("/1/evenement/update")
+                         .put("/1/evenement")
                          .content("{\"id_serie\": 1,\"date\": \"2022-10-24\", \"valeur\": 150.0, \"etiquette\" :  \"Escrime\", \"commentaire\" : \"\" }")
                          .contentType(MediaType.APPLICATION_JSON)
                          .accept(MediaType.APPLICATION_JSON))

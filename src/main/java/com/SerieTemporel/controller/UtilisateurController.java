@@ -46,7 +46,7 @@ public class UtilisateurController {
      * @return OK + url de l'utilisateur
      *         INTERNAL_SERVER_ERROR si une erreur survient
      */
-    @PostMapping("/utilisateur/create")
+    @PostMapping("/utilisateur")
     public ResponseEntity ajouterUtilisateur(@RequestBody Utilisateur user) {
         try {
             long id_new_user = utilisateurService.creerUtilisateur(user);
@@ -87,7 +87,7 @@ public class UtilisateurController {
      *         INTERNAL_SERVER_ERROR si une erreur survient
      *         NOT_FOUND si l'utilisateur n'existe pas
      */
-    @DeleteMapping("/utilisateur/delete/{userid}")
+    @DeleteMapping("/utilisateur/{userid}")
     public ResponseEntity deleteUtilisateur(@PathVariable("userid") long userid){
         try {
             utilisateurService.deleteUtilisateur(userid);
@@ -108,7 +108,7 @@ public class UtilisateurController {
      *         INTERNAL_SERVER_ERROR si une erreur survient
      *         NOT_FOUND si l'utilisateur n'existe pas
      */
-    @PutMapping("/utilisateur/update")
+    @PutMapping("/utilisateur")
     public ResponseEntity updateUtilisateur(@RequestBody Utilisateur user){
 
         try {

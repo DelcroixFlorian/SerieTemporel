@@ -36,7 +36,7 @@ public class EvenementController {
      *         INTERNAL_SERVER_ERROR si le serveur échoue à créer l'événement
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits de modification sur la série pour ajouter l'évènement
      */
-    @PostMapping("/{id_user}/evenement/create")
+    @PostMapping("/{id_user}/evenement")
     public ResponseEntity ajouter_evenement(@PathVariable long id_user, @RequestBody Evenement new_evenement) {
         // Création de l'élément en base via le service et récupération de son identifiant
         try {
@@ -66,7 +66,7 @@ public class EvenementController {
      *         NO_CONTENT si tout s'est bien passé
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits de modification sur la série pour supprimer l'évènement
      */
-    @DeleteMapping("/{id_user}/evenement/delete/{id}")
+    @DeleteMapping("/{id_user}/evenement/{id}")
     public ResponseEntity supprimer_evenement(@PathVariable long id_user, @PathVariable("id") long id) {
         try {
             serviceEvenement.supprimerEvenement(id, id_user);
@@ -92,7 +92,7 @@ public class EvenementController {
      *         CREATED si tout s'est bien passé + nouvel_evt
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits de modification pour modifier à la série de l'évènement
      */
-    @PutMapping("/{id_user}/evenement/update")
+    @PutMapping("/{id_user}/evenement")
     public ResponseEntity update_evenement(@PathVariable long id_user, @RequestBody Evenement evt) {
         try {
             Evenement evt_a_jour = serviceEvenement.updateEvenement(evt, id_user);

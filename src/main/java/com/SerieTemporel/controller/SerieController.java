@@ -26,7 +26,7 @@ public class SerieController {
      *         INTERNAL_SERVER_ERROR si on échoue à créer
      *         NOT_FOUND si l'utilisateur n'existe pas
      */
-    @PostMapping("/serie/create")
+    @PostMapping("/serie")
     public ResponseEntity ajouter_serie(@RequestBody Serie new_serie) {
         try {
             long id = serieService.creer_serie(new_serie);
@@ -51,7 +51,7 @@ public class SerieController {
      *         NOT_FOUND si la serie n'existe pas
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisants
      */
-    @GetMapping("/{id_user}/serie/info_serie/{id}")
+    @GetMapping("/{id_user}/serie/{id}")
     public ResponseEntity afficher_information_serie(@PathVariable long id_user, @PathVariable long id) {
         try {
             Serie serie = serieService.get_info_serie(id, id_user);
@@ -78,7 +78,7 @@ public class SerieController {
      *         NOT_FOUND si la serie n'existe pas
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisants
      */
-    @DeleteMapping("/{id_user}/serie/delete/{id}")
+    @DeleteMapping("/{id_user}/serie/{id}")
     public ResponseEntity supprimer_serie(@PathVariable long id_user, @PathVariable long id) {
         try {
             serieService.supprimer_serie(id, id_user);
