@@ -105,7 +105,7 @@ public class SerieController {
      *         NOT_FOUND si la serie n'existe pas
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisants
      */
-    @GetMapping("/{id_user}/serie/afficher_tous_event/{id_serie}")
+    @GetMapping("/{id_user}/serie/{id_serie}/events")
     public ResponseEntity afficher_evenement_serie(@PathVariable long id_user,@PathVariable("id_serie") long id) {
         try {
             Serie serie = serieService.get_info_serie(id, id_user);
@@ -230,7 +230,7 @@ public class SerieController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{id_user_init}/serie/{id_serie}/supprimer_partage/{id_user}")
+    @PatchMapping("/{id_user_init}/serie/{id_serie}/{id_user}")
     public ResponseEntity suuprimer_partage_serie(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
         try {
             serieService.supprimer_partage_serie(id_user, id_serie, id_user_init);
