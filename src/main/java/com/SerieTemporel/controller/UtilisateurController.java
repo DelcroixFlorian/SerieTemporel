@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.SerieTemporel.Service.UtilisateurService;
 import com.SerieTemporel.repository.UtilisateurRepo;
 
@@ -32,7 +31,7 @@ public class UtilisateurController {
     @GetMapping("/utilisateurs")
     public ResponseEntity getUtilisateurs(){
         try {
-            return new ResponseEntity(utilisateurService.getAllUtilisateurs(), HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(utilisateurService.getAllUtilisateurs());
 
         } catch (ExceptionInterne e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -47,10 +46,10 @@ public class UtilisateurController {
      *         INTERNAL_SERVER_ERROR si une erreur survient
      */
     @PostMapping("/utilisateur")
-    public ResponseEntity ajouterUtilisateur(@RequestBody Utilisateur user) {
+    public ResponseEntity<String> ajouterUtilisateur(@RequestBody Utilisateur user) {
         try {
-            long id_new_user = utilisateurService.creerUtilisateur(user);
-            return new ResponseEntity("id de l'utilisateur : " + id_new_user, HttpStatus.CREATED);
+            Utilisateur new_user = utilisateurService.creerUtilisateur(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body("id de l'utilisateur : " + new_user.getId());
 
         } catch (ExceptionInterne e) {
 
@@ -88,7 +87,7 @@ public class UtilisateurController {
      *         NOT_FOUND si l'utilisateur n'existe pas
      */
     @DeleteMapping("/utilisateur/{userid}")
-    public ResponseEntity deleteUtilisateur(@PathVariable("userid") long userid){
+    public ResponseEntity<String> deleteUtilisateur(@PathVariable("userid") long userid){
         try {
             utilisateurService.deleteUtilisateur(userid);
         } catch (ExceptionInterne e) {
@@ -112,7 +111,8 @@ public class UtilisateurController {
     public ResponseEntity updateUtilisateur(@RequestBody Utilisateur user){
 
         try {
-            utilisateurService.updateUtilisateur(user);
+            Utilisateur new_user = utilisateurService.updateUtilisateur(user);
+            return ResponseEntity.status(HttpStatus.OK).body(new_user);
         } catch (ExceptionInterne e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
 
@@ -120,7 +120,7 @@ public class UtilisateurController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
-        return ResponseEntity.ok("Utilisateur modifié");
+
     }
 
 
@@ -131,7 +131,7 @@ public class UtilisateurController {
      *         NOT_FOUND si l'utilisateur n'existe pas
      */
     @GetMapping("/utilisateur/connect")
-    public ResponseEntity connection(@RequestBody Utilisateur user) {
+    public ResponseEntity<String> connection(@RequestBody Utilisateur user) {
         try {
             long id_user = utilisateurService.verifier_identite(user.getIdentifiant(), user.getMdp());
             return ResponseEntity.ok().body("Votre numéro d'utilisateur :" + id_user);

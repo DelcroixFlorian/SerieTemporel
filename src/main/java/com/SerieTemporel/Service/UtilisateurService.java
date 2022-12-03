@@ -8,6 +8,7 @@ import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Serie;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -67,12 +68,11 @@ public class UtilisateurService {
      * @return Le nouvel utilisateur
      * @throws ExceptionInterne : si on échoue à créer de l'utilisateur
      */
-    public Long creerUtilisateur(Utilisateur user) throws ExceptionInterne {
+    public Utilisateur creerUtilisateur(Utilisateur user) throws ExceptionInterne {
         try {
             String mot_de_passe_hache = BCrypt.hashpw(user.getMdp(), BCrypt.gensalt());
             user.setMdp(mot_de_passe_hache);
-            Utilisateur new_user = utilisateurRepository.save(user);
-            return new_user.getId();
+            return utilisateurRepository.save(user);
         } catch (Exception err) {
             throw  new ExceptionInterne("erreur de creation");
         }
@@ -85,12 +85,14 @@ public class UtilisateurService {
      * @throws ExceptionInterne : si on échoue à mettre à jour
      * @throws ExceptionFormatObjetInvalide : si l'utilisateur n'existe pas
      */
-    public void updateUtilisateur(Utilisateur user) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+    @Cacheable(value="utilisateur", key="#user.id")
+    @CacheEvict(value="utilisateur", key="#user.id")
+    public Utilisateur updateUtilisateur(Utilisateur user) throws ExceptionInterne, ExceptionFormatObjetInvalide {
         if (!utilisateurRepository.existsById(user.getId())) {
             throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, mise à jour impossible.");
         }
         try {
-            utilisateurRepository.save(user);
+            return utilisateurRepository.save(user);
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de mise a jour");
         }
@@ -100,16 +102,17 @@ public class UtilisateurService {
 
     /**
      * Suppression d'un utilisateur
-     * @param userid : identifiant de l'utilisateur à supprimer
+     * @param id_user : identifiant de l'utilisateur à supprimer
      * @throws ExceptionInterne : si on échoué à supprimer
      * @throws ExceptionFormatObjetInvalide : si l'utilisateur n'existe pas
      */
-    public void deleteUtilisateur(Long userid) throws ExceptionInterne, ExceptionFormatObjetInvalide {
-        if (!utilisateurRepository.existsById(userid)) {
+    @CacheEvict(value="utilisateur", key="#id_user")
+    public void deleteUtilisateur(Long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+        if (!utilisateurRepository.existsById(id_user)) {
             throw new ExceptionFormatObjetInvalide("Utilisateur inconnu, suppression impossible.");
         }
         try {
-            utilisateurRepository.deleteById(userid);
+            utilisateurRepository.deleteById(id_user);
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de suppression");
         }
@@ -122,6 +125,7 @@ public class UtilisateurService {
      * @param serie : la serie à ajouter
      * @throws ExceptionInterne : si on échoue à mettre à jour
      */
+    @CacheEvict(value="utilisateur", key="#serie.id_user")
     public void ajouter_serie(Serie serie) throws ExceptionInterne {
         try {
             utilisateurRepository.findById(serie.getId_user()).ifPresent(user -> user.ajouter_serie(serie));

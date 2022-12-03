@@ -8,6 +8,7 @@ import com.SerieTemporel.modele.Serie;
 import com.SerieTemporel.modele.Utilisateur;
 import com.SerieTemporel.repository.SerieRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class SerieService {
      * @throws ExceptionInterne Si le serveur échoue à créer la série
      * @throws ExceptionFormatObjetInvalide Si l'utilisateur qui veut créer la série n'existe pas
      */
+    @CacheEvict(value="utilisateur", key="#new_serie.id_user")
     public long creer_serie(Serie new_serie) throws ExceptionInterne, ExceptionFormatObjetInvalide {
         utilisateurService.verifier_existe(new_serie);
         try {
@@ -116,6 +118,7 @@ public class SerieService {
      * @param serie : serie sur laquelle on veut ajouter un événement
      * @param event : événement à ajouter à la serie
      */
+    @CacheEvict(value="utilisateur", key="#serie.id_user")
     public void mettre_a_ajour_liste(Serie serie, Evenement event) {
         serie.ajouter_evenement_liste(event);
         serieRepo.save(serie);
@@ -130,6 +133,7 @@ public class SerieService {
      * @throws ExceptionInterne : si la suppresion échoue
      * @throws ExceptionNonAutoriseNonDroit : si l'utilisateur n'a pas les droits d'accés à la serie
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public void supprimer_serie(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
         if (!serieRepo.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Erreur, la série n'existe pas, suppression impossible.");
@@ -155,6 +159,7 @@ public class SerieService {
      * @throws ExceptionFormatObjetInvalide : Si on demande des droits inconnus
      * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour partager la serie
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public void partager_serie(long id_user_a_partager, long id_serie, int droit, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 
@@ -191,6 +196,7 @@ public class SerieService {
      * @throws ExceptionFormatObjetInvalide : Si on demande des droits inconnus
      * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour partager la serie
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public void modifier_partage_serie(long id_user_a_partager, long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 
@@ -217,6 +223,7 @@ public class SerieService {
      * @throws ExceptionFormatObjetInvalide :
      * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour supprimer le partage de la serie
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public void supprimer_partage_serie(long id_user_a_partager, long id_serie, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 

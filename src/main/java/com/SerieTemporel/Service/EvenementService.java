@@ -7,6 +7,7 @@ import com.SerieTemporel.modele.Evenement;
 import com.SerieTemporel.modele.Serie;
 import com.SerieTemporel.repository.EvenementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class EvenementService {
      * @throws ExceptionFormatObjetInvalide : Si l'identifiant de la série ne correspond pas à une série existante
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut ajouter un évènement
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public long creerEvenement(Evenement event, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         // Récupération de l'id de la série et vérification des droits
         long id_serie = event.getIdSerie();
@@ -56,11 +58,12 @@ public class EvenementService {
     /**
      * Suppresion d'un événement
      * @param id : identifiant de l'évènement à supprimer
-     * @param id_user : l'identifiant de l'utilisateur qui initie la création
+     * @param id_user : l'identifiant de l'utilisateur qui initie la suppression
      * @throws ExceptionInterne : Si une exception non gérée survient
      * @throws ExceptionFormatObjetInvalide : Si l'évènement à supprimer n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut supprimer un évènement
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public void supprimerEvenement(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionFormatObjetInvalide("Erreur, l'événement n'existe pas, suppression impossible.");
@@ -79,7 +82,7 @@ public class EvenementService {
     /**
      * Récupération d'un événement dans la base de données
      * @param id : identifiant de l'événement à récupérer
-     * @param id_user : l'identifiant de l'utilisateur qui initie la création
+     * @param id_user : l'identifiant de l'utilisateur qui initie la récupération
      * @return l'événement ou null si non existant
      * @throws ExceptionInterne : Si une exception non gérée survient
      * @throws ExceptionFormatObjetInvalide : si l'identifiant ne correspond à rien
@@ -132,6 +135,7 @@ public class EvenementService {
      * @throws ExceptionFormatObjetInvalide : Si l'évènement n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut mettre à jour un évènement
      */
+    @CacheEvict(value="utilisateur", key="#id_user")
     public Evenement updateEvenement(Evenement event, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
         if (!evenementRepository.existsById(event.getId_event())) {
             throw new ExceptionFormatObjetInvalide("Erreur, l'événement n'exite pas, mise à jour impossible.");
