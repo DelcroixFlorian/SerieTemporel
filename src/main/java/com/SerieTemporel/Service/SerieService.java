@@ -1,7 +1,8 @@
 package com.SerieTemporel.Service;
 
+import com.SerieTemporel.exception.ExceptionEntiteNonTrouvee;
 import com.SerieTemporel.exception.ExceptionNonAutoriseNonDroit;
-import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionArgumentIncorrect;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
 import com.SerieTemporel.modele.Serie;
@@ -29,15 +30,21 @@ public class SerieService {
      * @param new_serie Série à insérer dans la base de données
      * @return long : l'identifiant de la série créée
      * @throws ExceptionInterne Si le serveur échoue à créer la série
-     * @throws ExceptionFormatObjetInvalide Si l'utilisateur qui veut créer la série n'existe pas
+     * @throws ExceptionArgumentIncorrect Si l'utilisateur qui veut créer la série n'existe pas
      */
     @CacheEvict(value="utilisateur", key="#new_serie.id_user")
-    public long creer_serie(Serie new_serie) throws ExceptionInterne, ExceptionFormatObjetInvalide {
+    public long creer_serie(Serie new_serie) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionEntiteNonTrouvee {
         utilisateurService.verifier_existe(new_serie);
+
+        if (!new_serie.verifier_argument()) {
+            throw new ExceptionArgumentIncorrect("Le titre de la série et sa description ne doivent pas être vides.");
+        }
+
         try {
             Serie serie =  serieRepo.save(new_serie);
             utilisateurService.ajouter_serie( serie);
             return serie.getId();
+
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de création de la série");
         }
@@ -50,13 +57,13 @@ public class SerieService {
      * @param id_user : long identifiant de l'utilisateur qui initie la requete
      * @return la série si elle existe
      * @throws ExceptionInterne : Si on rencontre une erreur lors de la récupération
-     * @throws ExceptionFormatObjetInvalide : Si la série n'existe pas
+     * @throws ExceptionArgumentIncorrect : Si la série n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'est pas propriétaire ou si il n'a pas de partage
      */
     @Cacheable("serie")
-    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+    public Serie get_info_serie(long id, long id_user) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!serieRepo.existsById(id)) {
-            throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
+            throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE,id, "Identifiant de la série incorrect.");
         }
 
         Serie serie = serieRepo.findById(id).orElse(null);
@@ -80,16 +87,19 @@ public class SerieService {
      * @param id_user : identifiant de l'utilisateur qui tente d'accéder à la Serie
      * @param droit : droit nécessaire pour réaliser l'action pour laquelle on vérifie les autorisations
      * @throws ExceptionInterne : Si on arrive pas à récupérer la série correspondant à l'identifiant
-     * @throws ExceptionFormatObjetInvalide : Si le numéro de la Serie n'existe pas
+     * @throws ExceptionArgumentIncorrect : Si le numéro de la Serie n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si les droits sont insuffisants (ou inexistant)
+     * @throws ExceptionEntiteNonTrouvee : si une entié n'est pas trouvée
      */
-    public void autoriser_serie(long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+    public void autoriser_serie(long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!serieRepo.existsById(id_serie)) {
-            throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect.");
+            throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE,id_serie, "Identifiant de la série incorrect.");
         }
 
         Serie serie = serieRepo.findById(id_serie).orElse(null);
         if (serie != null) {
+            utilisateurService.verifier_existe(serie);
+
             List<Long> liste_user = serie.getListe_utilisateur_partagee();
             int index = liste_user.indexOf(id_user);
             if ( (id_user != serie.getId_user() // Non propriétaire
@@ -129,14 +139,14 @@ public class SerieService {
      * Suppression d'une Serie
      * @param id : identifiant de la serie à supprimer
      * @param id_user : identifiant de l'utilisateur initiant la suppresion
-     * @throws ExceptionFormatObjetInvalide : Si la serie n'existe pas
+     * @throws ExceptionArgumentIncorrect : Si la serie n'existe pas
      * @throws ExceptionInterne : si la suppresion échoue
      * @throws ExceptionNonAutoriseNonDroit : si l'utilisateur n'a pas les droits d'accés à la serie
      */
     @CacheEvict(value="utilisateur", key="#id_user")
-    public void supprimer_serie(long id, long id_user) throws ExceptionFormatObjetInvalide, ExceptionInterne, ExceptionNonAutoriseNonDroit {
+    public void supprimer_serie(long id, long id_user) throws ExceptionArgumentIncorrect, ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!serieRepo.existsById(id)) {
-            throw new ExceptionFormatObjetInvalide("Erreur, la série n'existe pas, suppression impossible.");
+            throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE, id, "Erreur, la série n'existe pas, suppression impossible.");
         }
 
         Serie serie = get_info_serie(id, id_user);
@@ -156,11 +166,11 @@ public class SerieService {
      * @param droit : droit à octroyer à travers ce partage
      * @param id_user : idenfifiant de l'utilisateur initiant le partage
      * @throws ExceptionInterne : Si on arrive pas récupérer les différentes entités
-     * @throws ExceptionFormatObjetInvalide : Si on demande des droits inconnus
+     * @throws ExceptionArgumentIncorrect : Si on demande des droits inconnus
      * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour partager la serie
      */
     @CacheEvict(value="utilisateur", key="#id_user")
-    public void partager_serie(long id_user_a_partager, long id_serie, int droit, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+    public void partager_serie(long id_user_a_partager, long id_serie, String droit, long id_user) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 
         if (user_partager == null) {
@@ -173,15 +183,7 @@ public class SerieService {
             throw new ExceptionInterne("Erreur de récupération de la série");
         }
 
-        String droit_str;
-        if (droit == 1) {
-            droit_str = Serie.DROIT_CONSULTATION;
-        } else if (droit == 2) {
-            droit_str = Serie.DROIT_MODIFICATION;
-        } else {
-            throw new ExceptionFormatObjetInvalide("Demande de droit inconnu.");
-        }
-        serie_a_partager.ajouter_partage(user_partager, droit_str);
+        serie_a_partager.ajouter_partage(user_partager, droit);
         serieRepo.save(serie_a_partager);
     }
 
@@ -193,11 +195,11 @@ public class SerieService {
      * @param droit : droit à octroyer à travers ce partage
      * @param id_user : idenfifiant de l'utilisateur initiant le partage
      * @throws ExceptionInterne : Si on arrive pas récupérer les différentes entités
-     * @throws ExceptionFormatObjetInvalide : Si on demande des droits inconnus
+     * @throws ExceptionArgumentIncorrect : Si on demande des droits inconnus
      * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour partager la serie
      */
     @CacheEvict(value="utilisateur", key="#id_user")
-    public void modifier_partage_serie(long id_user_a_partager, long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+    public void modifier_partage_serie(long id_user_a_partager, long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 
         if (user_partager == null) {
@@ -220,11 +222,11 @@ public class SerieService {
      * @param id_serie : identifiant de la serie partagée
      * @param id_user : idenfifiant de l'utilisateur initiant le partage
      * @throws ExceptionInterne : Si on arrive pas récupérer les différentes entités
-     * @throws ExceptionFormatObjetInvalide :
+     * @throws ExceptionArgumentIncorrect :
      * @throws ExceptionNonAutoriseNonDroit : Si on a pas les droits nécessaires pour supprimer le partage de la serie
      */
     @CacheEvict(value="utilisateur", key="#id_user")
-    public void supprimer_partage_serie(long id_user_a_partager, long id_serie, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+    public void supprimer_partage_serie(long id_user_a_partager, long id_serie, long id_user) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         Utilisateur user_partager = utilisateurService.getUtilisateur(id_user_a_partager);
 
         if (user_partager == null) {

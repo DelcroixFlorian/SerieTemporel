@@ -1,8 +1,9 @@
 package com.SerieTemporel.controller;
 
 import com.SerieTemporel.Service.SerieService;
+import com.SerieTemporel.exception.ExceptionEntiteNonTrouvee;
 import com.SerieTemporel.exception.ExceptionNonAutoriseNonDroit;
-import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionArgumentIncorrect;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Serie;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SerieController {
-
-    private final String MESSAGE_ERREUR_INTERNE = "Une erreur interne au serveur est survenue lors du traitement de l'opération, veuillez réessayer. Détail : ";
 
     @Autowired
     SerieService serieService;
@@ -25,20 +24,23 @@ public class SerieController {
      * @return CREATED si la série est créée
      *         INTERNAL_SERVER_ERROR si on échoue à créer
      *         NOT_FOUND si l'utilisateur n'existe pas
+     *         BAD_REQUEST Titre ou description de la série incorrect
      */
     @PostMapping("/serie")
-    public ResponseEntity ajouter_serie(@RequestBody Serie new_serie) {
+    public ResponseEntity<String> ajouter_serie(@RequestBody Serie new_serie) {
         try {
             long id = serieService.creer_serie(new_serie);
-            return new ResponseEntity("Identifiant de la série : " + id, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Identifiant de la série : " + id);
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide exceptionFormatObjetInvalide) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionFormatObjetInvalide.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
-
     }
 
 
@@ -57,14 +59,17 @@ public class SerieController {
             Serie serie = serieService.get_info_serie(id, id_user);
             return ResponseEntity.ok().body(serie);
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
     }
 
@@ -79,19 +84,22 @@ public class SerieController {
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisants
      */
     @DeleteMapping("/{id_user}/serie/{id}")
-    public ResponseEntity supprimer_serie(@PathVariable long id_user, @PathVariable long id) {
+    public ResponseEntity<String> supprimer_serie(@PathVariable long id_user, @PathVariable long id) {
         try {
             serieService.supprimer_serie(id, id_user);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
     }
 
@@ -111,14 +119,17 @@ public class SerieController {
             Serie serie = serieService.get_info_serie(id, id_user);
             return ResponseEntity.ok().body(serie.getList_event());
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
     }
 
@@ -127,24 +138,27 @@ public class SerieController {
      * Modification d'une serie avec ajout d'un utilisateur ayant des droits de consultation de la serie
      * @param id_user_init : utilisateur initiant la demande
      * @param id_user : utilisateur qui recevra les droits de partage
-     * @param id_serie : identifiant de la serie concernée par la serie
+     * @param id_serie : identifiant de la serie concernée par le partage
      * @return NO_CONTENT si le partage réussi
      *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
      *         NOT_FOUND si la serie ou un utilisateur n'existe pas
      *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
      */
     @PatchMapping("/{id_user_init}/serie/{id_serie}/partage_consultation/{id_user}")
-    public ResponseEntity partager_serie_consultation(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+    public ResponseEntity<String> partager_serie_consultation(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
         try {
-            serieService.partager_serie(id_user, id_serie, 1, id_user_init);
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+            serieService.partager_serie(id_user, id_serie, Serie.DROIT_CONSULTATION, id_user_init);
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -154,26 +168,30 @@ public class SerieController {
      * Modification d'une serie avec ajout d'un utilisateur ayant des droits de modification (inclue la consultation) de la serie
      * @param id_user_init : utilisateur initiant la demande
      * @param id_user : utilisateur qui recevra les droits de partage
-     * @param id_serie : identifiant de la serie concernée par la serie
+     * @param id_serie : identifiant de la serie concernée par le partage
      * @return NO_CONTENT si le partage réussi
      *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
      *         NOT_FOUND si la serie ou un utilisateur n'existe pas
      *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
      */
     @PatchMapping("/{id_user_init}/serie/{id_serie}/partage_modification/{id_user}")
-    public ResponseEntity partager_serie_modification(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+    public ResponseEntity<String> partager_serie_modification(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
         try {
-            serieService.partager_serie(id_user, id_serie, 2, id_user_init);
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+            serieService.partager_serie(id_user, id_serie, Serie.DROIT_MODIFICATION, id_user_init);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
@@ -181,26 +199,30 @@ public class SerieController {
      * Modification d'une serie avec modification des droits de partage de la serie pour DROIT_MODIFICATION
      * @param id_user_init : utilisateur initiant la demande
      * @param id_user : utilisateur qui recevra les droits de partage
-     * @param id_serie : identifiant de la serie concernée par la serie
+     * @param id_serie : identifiant de la serie concernée par le partage
      * @return NO_CONTENT si le partage réussi
      *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
      *         NOT_FOUND si la serie ou un utilisateur n'existe pas
      *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
      */
     @PatchMapping("/{id_user_init}/serie/{id_serie}/modifier_type_partage_en_modification/{id_user}")
-    public ResponseEntity modifier_partage_serie_modification(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+    public ResponseEntity<String> modifier_partage_serie_modification(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
         try {
             serieService.modifier_partage_serie(id_user, id_serie, id_user_init, Serie.DROIT_MODIFICATION);
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
@@ -208,41 +230,60 @@ public class SerieController {
      * Modification d'une serie avec modification des droits de partage de la serie pour DROIT_CONSULTATION
      * @param id_user_init : utilisateur initiant la demande
      * @param id_user : utilisateur qui recevra les droits de partage
-     * @param id_serie : identifiant de la serie concernée par la serie
+     * @param id_serie : identifiant de la serie concernée par le partage
      * @return NO_CONTENT si le partage réussi
      *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
      *         NOT_FOUND si la serie ou un utilisateur n'existe pas
      *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
      */
     @PatchMapping("/{id_user_init}/serie/{id_serie}/modifier_type_partage_en_consultation/{id_user}")
-    public ResponseEntity modifier_partage_serie_consultation(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+    public ResponseEntity<String> modifier_partage_serie_consultation(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
         try {
             serieService.modifier_partage_serie(id_user, id_serie, id_user_init, Serie.DROIT_CONSULTATION);
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } catch (ExceptionFormatObjetInvalide e) {
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionArgumentIncorrect e) {
             return ResponseEntity.badRequest().body(e.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{id_user_init}/serie/{id_serie}/{id_user}")
-    public ResponseEntity suuprimer_partage_serie(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
+
+    /**
+     * Retire le partage
+     * @param id_user_init : utilisateur initiant la demande
+     * @param id_user : utilisateur à qui on supprime le partage
+     * @param id_serie : identifiant de la serie concernée
+     * @return NO_CONTENT si le partage réussi
+     *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
+     *         NOT_FOUND si la serie ou un utilisateur n'existe pas
+     *         UNAUTHORIZED si l'utilisateur initiant la demande n'a pas les droits suffisants
+     */
+    @PatchMapping("/{id_user_init}/serie/{id_serie}/supprimer_partage/{id_user}")
+    public ResponseEntity<String> supprimer_partage_serie(@PathVariable long id_user_init, @PathVariable long id_user, @PathVariable long id_serie) {
         try {
             serieService.supprimer_partage_serie(id_user, id_serie, id_user_init);
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } catch (ExceptionFormatObjetInvalide e) {
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionArgumentIncorrect e) {
             return ResponseEntity.badRequest().body(e.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -1,5 +1,6 @@
 package com.SerieTemporel.modele;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -10,6 +11,9 @@ import java.util.Objects;
 @Table
 public class Evenement {
 
+    @JsonIgnore
+    public static final String NOM_ENTITE = "Evenement";
+
     /* Identfiant unique en base de données de l'évènement */
     @Id
     @Column
@@ -18,7 +22,7 @@ public class Evenement {
 
     /* Identifiant de la série de l'évènement (id de clé étrangère) */
     @Column
-    //@NonNull
+    @NonNull
     private long idSerie;
 
     /* Date d'accomplissement de l'événement */
@@ -28,7 +32,7 @@ public class Evenement {
 
     /* Valeur de l'évènement */
     @Column
-    //@NonNull
+    @NonNull
     private double valeur;
 
     /* Tag/etiquette de l'événement, permet de faire des tris et filtre */
@@ -36,7 +40,7 @@ public class Evenement {
     @NonNull
     private String etiquette;
 
-    /* Commentaire sur un évèenement peut être null */
+    /* Commentaire sur un évènement peut être null */
     @Column
     private String commentaire;
 
@@ -81,19 +85,24 @@ public class Evenement {
         return commentaire;
     }
 
-    public Evenement() {
+    public Evenement() {}
 
+    /**
+     * Verifie que les attributs d'un évènement soient corrects
+     * @return true si l'étiquette valide et l'idSerie valide
+     */
+    public boolean verifier_evenement() {
+        boolean valide = true;
+        if (this.idSerie < 0) {
+            valide = false;
+        }
+        if (this.etiquette.isEmpty() || this.etiquette.isBlank()) {
+            valide = false;
+        }
+
+        return valide;
     }
 
-    @Override
-    public String toString() {
-        return  this.id_event + ";" +
-                this.idSerie + ";" +
-                this.date + ";" +
-                this.valeur + ";" +
-                this.etiquette + ";" +
-                this.commentaire;
-    }
 
     @Override
     public boolean equals(Object o) {

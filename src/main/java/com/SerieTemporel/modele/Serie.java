@@ -1,6 +1,6 @@
 package com.SerieTemporel.modele;
 
-import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionArgumentIncorrect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -8,12 +8,23 @@ import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.*;
 
 @Entity
 @Table
 public class Serie {
-    
+
+    @JsonIgnore
+    public static final String NOM_ENTITE = "Serie temporelle";
+
+    /* Type de droit de partage */
+    @JsonIgnore
+    public static final String DROIT_CONSULTATION = "dc";
+
+    @JsonIgnore
+    public static final String DROIT_MODIFICATION = "dm";
+
     @Id
     @Column
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -21,7 +32,7 @@ public class Serie {
 
     /* Identifiant de l'utilisateur propriétaire de la série (Clé étrangère) */
     @Column
-    //@NonNull
+    @NonNull
     private long id_user;
 
     /* Titre de la série */
@@ -52,13 +63,6 @@ public class Serie {
     @Column
     @Convert(converter = ConvertListeSerie.class)
     private List<String> liste_droit_serie_partagee;
-
-    /* Type de droit de partage */
-    @JsonIgnore
-    public static final String DROIT_CONSULTATION = "dc";
-    @JsonIgnore
-    public static final String DROIT_MODIFICATION = "dm";
-
 
     public Serie(String titre, String description, Long id_user){
         this.titre = titre;
@@ -123,12 +127,12 @@ public class Serie {
      * @param user : l'utilisateur à qui est partagé la série
      * @param nouveau_droit : le type de droit octroyé
      */
-    public void modifier_partage(Utilisateur user, String nouveau_droit) throws ExceptionFormatObjetInvalide {
+    public void modifier_partage(Utilisateur user, String nouveau_droit) throws ExceptionArgumentIncorrect {
         int index = liste_utilisateur_partagee.indexOf(user.getId());
         if (index != -1) {
             liste_droit_serie_partagee.set(index, nouveau_droit);
         } else {
-            throw new ExceptionFormatObjetInvalide("Cette série n'est pas partagée");
+            throw new ExceptionArgumentIncorrect("Cette série n'est pas partagée");
         }
     }
 
@@ -137,13 +141,36 @@ public class Serie {
      * Suppresion du partage de la série
      * @param user : l'utilisateur à qui est partagé la série
      */
-    public void supprimer_partage(Utilisateur user) throws ExceptionFormatObjetInvalide {
+    public void supprimer_partage(Utilisateur user) throws ExceptionArgumentIncorrect {
         int index = liste_utilisateur_partagee.indexOf(user.getId());
         if (index != -1) {
             liste_droit_serie_partagee.remove(index);
             liste_utilisateur_partagee.remove(index);
         } else {
-            throw new ExceptionFormatObjetInvalide("Cette série n'est pas partagée");
+            throw new ExceptionArgumentIncorrect("Cette série n'est pas partagée");
         }
+    }
+
+
+    /**
+     * Vérifie que le titre et la description de l'entité soient valide
+     * @return true si valide
+     */
+    public boolean verifier_argument() {
+        return !this.titre.isBlank() && !this.titre.isEmpty() && !this.description.isBlank() && !this.description.isEmpty();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Serie)) return false;
+        Serie serie = (Serie) o;
+        return id == serie.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

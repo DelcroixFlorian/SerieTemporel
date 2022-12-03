@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EvenementRepo extends JpaRepository<Evenement, Long> {
 
-    public Iterable<Evenement> getEvenementsByEtiquetteAndIdSerie(String etiquette, Long idSerie);
+    Iterable<Evenement> getEvenementsByEtiquetteAndIdSerie(String etiquette, Long idSerie);
 
-    public Evenement findEvenementByEtiquetteAndIdSerieOrderByDateDesc(String etiquette, Long idSerie);
+    Evenement findEvenementByEtiquetteAndIdSerieOrderByDateDesc(String etiquette, Long idSerie);
 
 }
 

@@ -1,6 +1,7 @@
 package com.SerieTemporel.controller;
 
-import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionArgumentIncorrect;
+import com.SerieTemporel.exception.ExceptionEntiteNonTrouvee;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Utilisateur;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ public class UtilisateurController {
      * @param user : la représentation de l'utilisateur à créer
      * @return OK + url de l'utilisateur
      *         INTERNAL_SERVER_ERROR si une erreur survient
+     *         BAD_REQUEST si les champs de l'entité sont mal remplit
      */
     @PostMapping("/utilisateur")
     public ResponseEntity<String> ajouterUtilisateur(@RequestBody Utilisateur user) {
@@ -51,9 +53,11 @@ public class UtilisateurController {
             Utilisateur new_user = utilisateurService.creerUtilisateur(user);
             return ResponseEntity.status(HttpStatus.CREATED).body("id de l'utilisateur : " + new_user.getId());
 
-        } catch (ExceptionInterne e) {
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-            return ResponseEntity.internalServerError().body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
         }
     }
 
@@ -68,13 +72,13 @@ public class UtilisateurController {
     @GetMapping("/utilisateur/{userid}")
     public ResponseEntity getUtilisateur(@PathVariable("userid") long userid){
         try {
-            return new ResponseEntity(utilisateurService.getUtilisateur(userid), HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(utilisateurService.getUtilisateur(userid));
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
     }
 
@@ -90,15 +94,17 @@ public class UtilisateurController {
     public ResponseEntity<String> deleteUtilisateur(@PathVariable("userid") long userid){
         try {
             utilisateurService.deleteUtilisateur(userid);
+
         } catch (ExceptionInterne e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
 
         return ResponseEntity.ok("Utilisateur : " + userid + " supprimé.");
     }
+
 
     /**
      * Mise à jour d'un utilisateur
@@ -106,6 +112,7 @@ public class UtilisateurController {
      * @return OK si bien à jour
      *         INTERNAL_SERVER_ERROR si une erreur survient
      *         NOT_FOUND si l'utilisateur n'existe pas
+     *         BAD_REQUEST si les champs de l'entité sont mal remplit
      */
     @PutMapping("/utilisateur")
     public ResponseEntity updateUtilisateur(@RequestBody Utilisateur user){
@@ -113,11 +120,15 @@ public class UtilisateurController {
         try {
             Utilisateur new_user = utilisateurService.updateUtilisateur(user);
             return ResponseEntity.status(HttpStatus.OK).body(new_user);
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
 
 
@@ -129,6 +140,7 @@ public class UtilisateurController {
      * @param user : l'utilisateur dont on cherche à vérifier les informations
      * @return OK si bien à jour
      *         NOT_FOUND si l'utilisateur n'existe pas
+     *         BAD_REQUEST si les champs de l'entité sont mal remplit
      */
     @GetMapping("/utilisateur/connect")
     public ResponseEntity<String> connection(@RequestBody Utilisateur user) {
@@ -136,8 +148,11 @@ public class UtilisateurController {
             long id_user = utilisateurService.verifier_identite(user.getIdentifiant(), user.getMdp());
             return ResponseEntity.ok().body("Votre numéro d'utilisateur :" + id_user);
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
     }
 

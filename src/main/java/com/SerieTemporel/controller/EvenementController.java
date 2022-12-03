@@ -1,8 +1,9 @@
 package com.SerieTemporel.controller;
 
 import com.SerieTemporel.Service.EvenementService;
+import com.SerieTemporel.exception.ExceptionEntiteNonTrouvee;
 import com.SerieTemporel.exception.ExceptionNonAutoriseNonDroit;
-import com.SerieTemporel.exception.ExceptionFormatObjetInvalide;
+import com.SerieTemporel.exception.ExceptionArgumentIncorrect;
 import com.SerieTemporel.exception.ExceptionInterne;
 import com.SerieTemporel.modele.Evenement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /*
  * Gestion des requêtes concernant les événements
  */
 @RestController
 public class EvenementController {
-
-    private final String MESSAGE_ERREUR_INTERNE = "Une erreur interne au serveur est survenue lors du traitement de l'opération, veuillez réessayer. Détail : ";
 
     @Autowired
     EvenementService serviceEvenement;
@@ -44,17 +41,19 @@ public class EvenementController {
         try {
             long id_new_event = serviceEvenement.creerEvenement(new_evenement, id_user);
             // On renvoi l'identifiant du nouvel événement avec 201 comme statut
-            return new ResponseEntity("Id de l'évenement : " + id_new_event,
-                    HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Id de l'évenement : " + id_new_event);
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
 
     }
@@ -74,14 +73,17 @@ public class EvenementController {
             serviceEvenement.supprimerEvenement(id, id_user);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } catch (ExceptionFormatObjetInvalide e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.badRequest().body(err.getMessage());
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
         }
     }
 
@@ -100,14 +102,17 @@ public class EvenementController {
             Evenement evt_a_jour = serviceEvenement.updateEvenement(evt, id_user);
             return ResponseEntity.status(HttpStatus.CREATED).body(evt_a_jour);
 
-        } catch (ExceptionFormatObjetInvalide err) {
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
-
-        } catch (ExceptionInterne exceptionInterne) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + exceptionInterne.getMessage());
-
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
         }
     }
 
@@ -127,32 +132,46 @@ public class EvenementController {
             Evenement evt = serviceEvenement.getEvenement(id_event, id_user);
             return ResponseEntity.status(HttpStatus.OK).body(evt);
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide err) {
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
-
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
         }
 
     }
 
+
+    /**
+     *
+     * @param id_user
+     * @param id_serie
+     * @param etiquette
+     * @return
+     */
     @GetMapping("/{id_user}/evenement/{id_serie}/{etiquette}")
     public ResponseEntity voir_evenement_par_etiquette(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
         try {
             Iterable<Evenement> liste_event = serviceEvenement.getEvenementsEtiquetteSerie(id_serie, etiquette, id_user);
             return ResponseEntity.status(HttpStatus.OK).body(liste_event);
 
-        } catch (ExceptionInterne e) {
-            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionFormatObjetInvalide err) {
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
-
-        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
         }
 
     }
