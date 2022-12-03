@@ -141,4 +141,14 @@ public class UtilisateurController {
         }
     }
 
+
+    /**
+     * Essaye de préparer un café dans une theière !
+     */
+    @GetMapping("/utilisateur/pause_cafe")
+    public ResponseEntity<String> pause_cafe() {
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build();
+    }
+
+
 }
