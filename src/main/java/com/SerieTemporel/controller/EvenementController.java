@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /*
  * Gestion des requêtes concernant les événements
  */
@@ -124,6 +126,24 @@ public class EvenementController {
         try {
             Evenement evt = serviceEvenement.getEvenement(id_event, id_user);
             return ResponseEntity.status(HttpStatus.OK).body(evt);
+
+        } catch (ExceptionInterne e) {
+            return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());
+
+        } catch (ExceptionFormatObjetInvalide err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit exceptionNonAutoriseNonDroit) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionNonAutoriseNonDroit.getMessage());
+        }
+
+    }
+
+    @GetMapping("/{id_user}/evenement/{id_serie}/{etiquette}")
+    public ResponseEntity voir_evenement_par_etiquette(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
+        try {
+            Iterable<Evenement> liste_event = serviceEvenement.getEvenementsEtiquetteSerie(id_serie, etiquette, id_user);
+            return ResponseEntity.status(HttpStatus.OK).body(liste_event);
 
         } catch (ExceptionInterne e) {
             return ResponseEntity.internalServerError().body(MESSAGE_ERREUR_INTERNE + e.getMessage());

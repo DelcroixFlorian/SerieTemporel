@@ -17,7 +17,7 @@ public class TestEvenement {
 
     @Test
     public void test_creation() {
-        assertThat(event.getId_serie()).isEqualTo(1);
+        assertThat(event.getIdSerie()).isEqualTo(1);
     }
 
     @Test
@@ -27,7 +27,7 @@ public class TestEvenement {
 
     @Test
     public void test_getSerie(){
-        assertThat(event.getId_serie()).isEqualTo(1);
+        assertThat(event.getIdSerie()).isEqualTo(1);
     }
 
     @Test

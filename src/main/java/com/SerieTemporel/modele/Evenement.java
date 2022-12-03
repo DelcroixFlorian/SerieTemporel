@@ -19,7 +19,7 @@ public class Evenement {
     /* Identifiant de la série de l'évènement (id de clé étrangère) */
     @Column
     //@NonNull
-    private long id_serie;
+    private long idSerie;
 
     /* Date d'accomplissement de l'événement */
     @Column
@@ -42,14 +42,14 @@ public class Evenement {
 
     /**
      * Constructeur d'un évènement
-     * @param id_serie
+     * @param idSerie
      * @param date
      * @param valeur
      * @param etiquette
      * @param commentaire
      */
-    public Evenement(long id_serie,Date date,double valeur,String etiquette,String commentaire){
-        this.id_serie = id_serie;
+    public Evenement(long idSerie, Date date, double valeur, String etiquette, String commentaire){
+        this.idSerie = idSerie;
         this.date = date;
         this.valeur = valeur;
         this.etiquette = etiquette;
@@ -61,8 +61,8 @@ public class Evenement {
         return id_event;
     }
 
-    public long getId_serie() {
-        return id_serie;
+    public long getIdSerie() {
+        return idSerie;
     }
 
     public Date getDate() {
@@ -88,7 +88,7 @@ public class Evenement {
     @Override
     public String toString() {
         return  this.id_event + ";" +
-                this.id_serie + ";" +
+                this.idSerie + ";" +
                 this.date + ";" +
                 this.valeur + ";" +
                 this.etiquette + ";" +

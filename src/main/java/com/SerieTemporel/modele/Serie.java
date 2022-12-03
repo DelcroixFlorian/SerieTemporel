@@ -37,7 +37,7 @@ public class Serie {
     /* Liste des évènements appartenant à la série */
     @Column
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name="id_serie")
+    @JoinColumn(name="idSerie")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Evenement> list_event;
 

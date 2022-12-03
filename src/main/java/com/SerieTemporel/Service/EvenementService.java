@@ -30,10 +30,10 @@ public class EvenementService {
      */
     public long creerEvenement(Evenement event, long id_user) throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
         // Récupération de l'id de la série et vérification des droits
-        long id_serie = event.getId_serie();
+        long id_serie = event.getIdSerie();
         if (serieService.serie_existe(id_serie)) {
             Serie serie_concerne = serieService.get_info_serie(id_serie, id_user);
-            serieService.autoriser_serie(event.getId_serie(), id_user, Serie.DROIT_MODIFICATION);
+            serieService.autoriser_serie(event.getIdSerie(), id_user, Serie.DROIT_MODIFICATION);
 
             try {
                 // Création de l'évènement
@@ -66,7 +66,7 @@ public class EvenementService {
             throw new ExceptionFormatObjetInvalide("Erreur, l'événement n'existe pas, suppression impossible.");
         }
         Evenement event = getEvenement(id, id_user);
-        serieService.autoriser_serie(event.getId_serie(), id_user, Serie.DROIT_MODIFICATION);
+        serieService.autoriser_serie(event.getIdSerie(), id_user, Serie.DROIT_MODIFICATION);
 
         try {
             evenementRepository.delete(event);
@@ -92,9 +92,34 @@ public class EvenementService {
         }
         Evenement event = evenementRepository.findById(id).orElse(null);
         assert event != null;
-        serieService.autoriser_serie(event.getId_serie(), id_user, Serie.DROIT_CONSULTATION);
+        serieService.autoriser_serie(event.getIdSerie(), id_user, Serie.DROIT_CONSULTATION);
 
         return event;
+    }
+
+
+    /**
+     *
+     * @param id_serie
+     * @param etiquette
+     * @param id_user
+     * @return
+     * @throws ExceptionInterne
+     * @throws ExceptionFormatObjetInvalide
+     * @throws ExceptionNonAutoriseNonDroit
+     */
+    @Cacheable("evenement")
+    public Iterable<Evenement> getEvenementsEtiquetteSerie(long id_serie, String etiquette, long id_user)
+            throws ExceptionInterne, ExceptionFormatObjetInvalide, ExceptionNonAutoriseNonDroit {
+
+        if (!serieService.serie_existe(id_serie)) {
+            throw new ExceptionFormatObjetInvalide("Identifiant de la série incorrect");
+        }
+        serieService.autoriser_serie(id_serie, id_user, Serie.DROIT_CONSULTATION);
+
+        Iterable<Evenement> liste_event = evenementRepository.getEvenementsByEtiquetteAndIdSerie(etiquette, id_serie);
+
+        return liste_event;
     }
 
 
@@ -112,7 +137,7 @@ public class EvenementService {
             throw new ExceptionFormatObjetInvalide("Erreur, l'événement n'exite pas, mise à jour impossible.");
         }
 
-        serieService.autoriser_serie(event.getId_serie(), id_user, Serie.DROIT_MODIFICATION);
+        serieService.autoriser_serie(event.getIdSerie(), id_user, Serie.DROIT_MODIFICATION);
 
         try {
             return evenementRepository.save(event);
