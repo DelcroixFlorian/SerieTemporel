@@ -50,8 +50,4 @@ public class TestEvenement {
         assertThat(event.getCommentaire()).isEqualTo("la");
     }
 
-    @Test
-    public void test_toString(){
-        assertThat(event.toString()).isEqualTo("0;1;2000-12-12;15.0;ici;la");
-    }
 }

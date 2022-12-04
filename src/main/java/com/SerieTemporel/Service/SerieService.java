@@ -279,4 +279,35 @@ public class SerieService {
         serieRepo.save(serie_a_partager);
     }
 
+
+    /**
+     * Mise à jour d'une série
+     * @param serie : série à mettre à jour (contenant toutes les données)
+     * @param id_user : l'identifiant de l'utilisateur qui initie la modification
+     * @return la nouvelle série mise à jour
+     * @throws ExceptionInterne : Si une exception non gérée survient
+     * @throws ExceptionEntiteNonTrouvee : Si la série n'existe pas
+     * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série
+     */
+    @Caching(evict = {
+            @CacheEvict(value="utilisateur", key="#id_user"),
+            @CacheEvict(value="serie", key="#serie.id")
+    })
+    public Serie updateSerie(Serie serie, long id_user)
+            throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
+
+        if (!serieRepo.existsById(serie.getId())) {
+            throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE, serie.getId(), "Erreur, la série n'exite pas, mise à jour impossible.");
+        }
+
+        autoriser_serie(serie.getId(), id_user, Serie.DROIT_MODIFICATION);
+
+        try {
+            return serieRepo.save(serie);
+        } catch (Exception err) {
+            throw new ExceptionInterne("erreur de mise à jour");
+        }
+
+    }
+
 }

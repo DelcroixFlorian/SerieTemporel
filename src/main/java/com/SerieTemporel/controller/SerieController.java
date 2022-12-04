@@ -162,6 +162,31 @@ public class SerieController {
         }
     }
 
+    /**
+     * Requête PUT pour modifier une série
+     * @param serie : une représentation de la serie à modifier
+     * @return NOT_FOUND si la serie n'existe pas
+     *         INTERNAL_SERVER_ERROR si la mise à jour a échouée
+     *         CREATED si tout s'est bien passé + nouvel_serie
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits de modification pour modifier à la série
+     */
+    @PutMapping("/{id_user}/serie")
+    public ResponseEntity update_evenement(@PathVariable long id_user, @RequestBody Serie serie) {
+        try {
+            Serie serie_a_jour = serieService.updateSerie(serie, id_user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(serie_a_jour);
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+        }
+    }
+
 
     /**
      * Modification d'une serie avec ajout d'un utilisateur ayant des droits de consultation de la serie
