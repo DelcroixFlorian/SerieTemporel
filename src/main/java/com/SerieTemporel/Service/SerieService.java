@@ -14,7 +14,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -81,6 +85,21 @@ public class SerieService {
         } else {
             throw new ExceptionInterne("erreur de récupération de la série");
         }
+    }
+
+
+    /**
+     * Transforme une liste d'événement en une map de couple Date/valeur
+     * @param liste_event : liste des événements à ajouter à la HasHMap
+     * @return Une HashMap de couple Date/Valeur
+     */
+    public Map<String, Double> get_liste_couple_valeur_date(List<Evenement> liste_event) {
+        Map<String, Double> liste_couple = new HashMap<>();
+        for (Evenement evt : liste_event) {
+            liste_couple.put(evt.getId_event() + " : " + evt.getDate().toLocalDate(), evt.getValeur());
+        }
+
+        return liste_couple;
     }
 
 

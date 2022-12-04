@@ -133,6 +133,35 @@ public class SerieController {
         }
     }
 
+    /**
+     * Renvoi tous les événements d'une serie
+     * @param id_user : identifiant de l'utilisateur initiant la demande
+     * @param id : identifiant de la serie dont on veut les événement
+     * @return OK avec la liste des évenements
+     *         INTERNAL_SERVER_ERROR si on rencontre une erreur d'execution
+     *         NOT_FOUND si la serie n'existe pas
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisants
+     */
+    @GetMapping("/{id_user}/serie/{id_serie}/events_map")
+    public ResponseEntity afficher_evenement_serie_mapper(@PathVariable long id_user,@PathVariable("id_serie") long id) {
+        try {
+            Serie serie = serieService.get_info_serie(id, id_user);
+            return ResponseEntity.ok().body(serieService.get_liste_couple_valeur_date(serie.getList_event()));
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionArgumentIncorrect err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+        }
+    }
+
 
     /**
      * Modification d'une serie avec ajout d'un utilisateur ayant des droits de consultation de la serie

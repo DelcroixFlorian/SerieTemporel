@@ -182,6 +182,35 @@ public class EvenementController {
 
     }
 
+    /**
+     * Retourne une liste d'évènements d'une série en fonction d'une étiquette en mode mappage
+     * @param etiquette : Critère de recherche de l'étiquette, recherche exacte (Sensible à la casse)
+     * @param id_serie : identifiant de la série dans laquelle on va chercher
+     * @param id_user : identifiant unique de l'utilisateur qui demande à voir les évènements
+     * @return OK (200) Si on a pu récupérer une liste d'évenement corrrespondant à la recherche + la liste
+     *         INTERNAL_SERVER_ERROR si on échoue à récupérer l'évènement
+     *         NOT_FOUND si l'identifiant de l'évènement, de l'utilisateur ou de la série est incorrect
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisant pour accéder à la série de l'évènement
+     */
+    @GetMapping("/{id_user}/evenement/{id_serie}/mapper/{etiquette}")
+    public ResponseEntity voir_evenement_par_etiquette_mapper(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
+        try {
+            Iterable<Evenement> liste_event = serviceEvenement.getEvenementsEtiquetteSerie(id_serie, etiquette, id_user);
+            return ResponseEntity.status(HttpStatus.OK).body(serviceEvenement.get_liste_couple_valeur_date(liste_event));
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+        }
+
+    }
+
+
 
     /**
      * Retourne le dernier évènement d'une série en fonction d'une étiquette
@@ -258,7 +287,7 @@ public class EvenementController {
      *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisant pour accéder à la série de l'évènement
      */
     @GetMapping("/{id_user}/evenement/{id_serie}/count/{etiquette}/{date_debut}/{date_fin}")
-    public ResponseEntity<String> voir_evenement_dernier_etiquette(@PathVariable long id_user,
+    public ResponseEntity<String> nombre_event_entre_deux_date(@PathVariable long id_user,
                                                            @PathVariable("id_serie") long id_serie,
                                                            @PathVariable String etiquette,
                                                            @PathVariable String date_debut,

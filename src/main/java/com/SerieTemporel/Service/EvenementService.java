@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 @Service
 public class EvenementService {
@@ -269,5 +268,20 @@ public class EvenementService {
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de récupération");
         }
+    }
+
+
+    /**
+     * Transforme une liste d'événement en une map de couple Date/valeur
+     * @param liste_event : liste des événements à ajouter à la HasHMap
+     * @return Une HashMap de couple Date/Valeur
+     */
+    public Map<String, Double> get_liste_couple_valeur_date(Iterable<Evenement> liste_event) {
+        Map<String, Double> liste_couple = new HashMap<>();
+        for (Evenement evt : liste_event) {
+            liste_couple.put(evt.getId_event() + " : " + evt.getDate().toLocalDate(), evt.getValeur());
+        }
+
+        return liste_couple;
     }
 }
