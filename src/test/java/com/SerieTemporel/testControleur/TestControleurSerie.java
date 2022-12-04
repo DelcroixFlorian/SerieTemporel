@@ -46,4 +46,62 @@ public class TestControleurSerie {
                             .get("/1/serie/1"))
                             .andExpect(status().isOk());
     }
+
+
+    @Test
+    public void test_supprimer_serie() throws Exception {
+        seriecontroller.perform(MockMvcRequestBuilders
+                        .delete("/1/serie/1"))
+                        .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void test_afficher_evenement_serie() throws Exception {
+//        seriecontroller.perform(MockMvcRequestBuilders
+//                        .get("/1/serie/1/events"))
+//                        .andExpect(status().isOk());
+    }
+
+    @Test
+    public void test_afficher_evenement_serie_mapper() throws Exception {
+//        seriecontroller.perform(MockMvcRequestBuilders
+//                        .get("/1/serie/1/events_map"))
+//                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void test_partager_serie_consultation() throws Exception {
+        seriecontroller.perform(MockMvcRequestBuilders
+                        .patch("/1/serie/1/partage_consultation/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void test_partager_serie_modification() throws Exception {
+        seriecontroller.perform(MockMvcRequestBuilders
+                        .patch("/1/serie/1/partage_modification/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void test_modifier_partage_serie_modification() throws Exception {
+        seriecontroller.perform(MockMvcRequestBuilders
+                        .patch("/1/serie/1/modifier_type_partage_en_modification/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void test_modifier_partage_serie_consultation() throws Exception {
+        seriecontroller.perform(MockMvcRequestBuilders
+                        .patch("/1/serie/1/modifier_type_partage_en_consultation/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void test_supprimer_partage() throws Exception {
+        seriecontroller.perform(MockMvcRequestBuilders
+                        .patch("/1/serie/1/supprimer_partage/1"))
+                .andExpect(status().isNoContent());
+    }
+
 }

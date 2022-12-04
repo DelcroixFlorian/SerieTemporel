@@ -47,7 +47,7 @@ public class EvenementController {
         try {
             long id_new_event = serviceEvenement.creerEvenement(new_evenement, id_user);
             // On renvoi l'identifiant du nouvel événement avec 201 comme statut
-            return ResponseEntity.status(HttpStatus.CREATED).body("Id de l'évenement : " + id_new_event);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Id de l'evenement : " + id_new_event);
 
         } catch (ExceptionInterne err) {
             return ResponseEntity.internalServerError().body(err.getMessage());

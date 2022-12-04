@@ -1,5 +1,6 @@
 package com.SerieTemporel.testControleur;
 
+import com.SerieTemporel.modele.Utilisateur;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.mockito.Mockito.when;
 import com.SerieTemporel.Service.UtilisateurService;
 
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ public class TestControleurUtilisateur {
 
     @Test
     public void test_ajouterUtilisateur() throws Exception {
+        when(userService.creerUtilisateur(new Utilisateur("monidentifiant", "monmotdepasse"))).thenReturn(new Utilisateur("monidentifiant", "monmotdepasse"));
         usercontroller.perform( MockMvcRequestBuilders
                         .post("/utilisateur")
                         .content("{\"identifiant\": \"monidentifiant\",\"mdp\": \"monmotdepasse\"}")
@@ -80,5 +82,12 @@ public class TestControleurUtilisateur {
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
                             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void test_le_cafe() throws Exception {
+        usercontroller.perform(MockMvcRequestBuilders
+                .get("/utilisateur/pause_cafe")
+                ).andExpect(status().isIAmATeapot());
     }
 }
