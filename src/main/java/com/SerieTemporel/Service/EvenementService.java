@@ -10,6 +10,7 @@ import com.SerieTemporel.repository.EvenementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -36,7 +37,13 @@ public class EvenementService {
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut ajouter un évènement
      * @throws ExceptionEntiteNonTrouvee : si on ne trouve pas l'utilisateur ou la série associée
      */
-    @CacheEvict(value="utilisateur", key="#id_user")
+    @Caching(evict = {
+            @CacheEvict(value="utilisateur", key="#id_user"),
+            @CacheEvict(value="evenement", key="#event.id_event"),
+            @CacheEvict(value="evenements", allEntries = true),
+            @CacheEvict(value="evenement_recent", allEntries = true),
+            @CacheEvict(value="evenement_nb", allEntries = true)
+    })
     public long creerEvenement(Evenement event, long id_user) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!event.verifier_evenement()) {
             throw new ExceptionArgumentIncorrect("L'étiquette ne doit pas être vide, le numéro de série est un nombre positif.");
@@ -74,7 +81,13 @@ public class EvenementService {
      * @throws ExceptionArgumentIncorrect : Si l'évènement à supprimer n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut supprimer un évènement
      */
-    @CacheEvict(value="utilisateur", key="#id_user")
+    @Caching(evict = {
+            @CacheEvict(value="utilisateur", key="#id_user"),
+            @CacheEvict(value="evenement", key="#id"),
+            @CacheEvict(value="evenements", allEntries = true),
+            @CacheEvict(value="evenement_recent", allEntries = true),
+            @CacheEvict(value="evenement_nb", allEntries = true)
+    })
     public void supprimerEvenement(long id, long id_user) throws ExceptionArgumentIncorrect, ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionEntiteNonTrouvee(Evenement.NOM_ENTITE, id, "L'événement n'existe pas, suppression impossible.");
@@ -100,7 +113,7 @@ public class EvenementService {
      * @throws ExceptionArgumentIncorrect : si l'identifiant ne correspond à rien
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut consulter un évènement
      */
-    @Cacheable("evenement")
+    @Cacheable(value="evenement", key="#id")
     public Evenement getEvenement(long id, long id_user) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!evenementRepository.existsById(id)) {
             throw new ExceptionEntiteNonTrouvee(Evenement.NOM_ENTITE, id, "Identifiant de l'évènement incorrect");
@@ -128,7 +141,7 @@ public class EvenementService {
      * @return une liste d'évenement correspondant aux critères
      * @throws ExceptionEntiteNonTrouvee : si la série existe pas
      */
-    @Cacheable("evenement")
+    @Cacheable(value = "evenements", key="#id_serie+#etiquette")
     public Iterable<Evenement> getEvenementsEtiquetteSerie(long id_serie, String etiquette, long id_user)
             throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
 
@@ -155,7 +168,7 @@ public class EvenementService {
      * @return un événement
      * @throws ExceptionEntiteNonTrouvee : si la série existe pas
      */
-    @Cacheable("evenement")
+    @Cacheable(value = "evenement_recent", key="#id_serie+#etiquette")
     public Iterable<Evenement> getEvenementEtiquetteSerieRecent(long id_serie, String etiquette, long id_user)
             throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
 
@@ -206,7 +219,13 @@ public class EvenementService {
      * @throws ExceptionArgumentIncorrect : Si l'évènement n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si l'utilisateur n'a pas les droits sur la série ou il veut mettre à jour un évènement
      */
-    @CacheEvict(value="utilisateur", key="#id_user")
+    @Caching(evict = {
+            @CacheEvict(value="utilisateur", key="#id_user"),
+            @CacheEvict(value="evenement", key="#event.id_event"),
+            @CacheEvict(value="evenements", allEntries = true),
+            @CacheEvict(value="evenement_recent", allEntries = true),
+            @CacheEvict(value="evenement_nb", allEntries = true)
+    })
     public Evenement updateEvenement(Evenement event, long id_user)
             throws ExceptionArgumentIncorrect, ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
 
@@ -237,6 +256,7 @@ public class EvenementService {
      * @throws ExceptionNonAutoriseNonDroit
      * @throws ExceptionInterne
      */
+    @Cacheable(value = "evenement_nb", key = "#id_serie+#etiquette+#date_debut+#date_fin")
     public int get_nombre_evenement_entre_deux_date(String etiquette, Long id_serie, Date date_debut, Date date_fin, Long id_user) throws ExceptionEntiteNonTrouvee, ExceptionNonAutoriseNonDroit, ExceptionInterne {
         if (!serieService.serie_existe(id_serie)) {
             throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE, id_serie, "Identifiant de la série incorrect");

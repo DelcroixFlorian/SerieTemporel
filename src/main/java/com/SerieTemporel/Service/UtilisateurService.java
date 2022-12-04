@@ -11,6 +11,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.SerieTemporel.modele.Utilisateur;
@@ -121,7 +122,10 @@ public class UtilisateurService {
      * @throws ExceptionInterne : si on échoue à supprimer
      * @throws ExceptionEntiteNonTrouvee : si l'utilisateur n'existe pas
      */
-    @CacheEvict(value="utilisateur", key="#id_user")
+    @Caching(evict = {
+            @CacheEvict(value="utilisateur", key="#id_user"),
+            @CacheEvict(value="serie", allEntries = true)
+    })
     public void deleteUtilisateur(Long id_user) throws ExceptionInterne, ExceptionEntiteNonTrouvee {
         if (!utilisateurRepository.existsById(id_user)) {
             throw new ExceptionEntiteNonTrouvee(Utilisateur.NOM_ENTITE,id_user, "Utilisateur inconnu, suppression impossible.");
@@ -188,7 +192,7 @@ public class UtilisateurService {
      */
     public void verifier_existe(Serie serie) throws ExceptionEntiteNonTrouvee {
         if (!utilisateurRepository.existsById(serie.getId_user())) {
-            throw new ExceptionEntiteNonTrouvee(Utilisateur.NOM_ENTITE, -1L, "Utilisateur inconnu, accès à la série impossible.");
+            throw new ExceptionEntiteNonTrouvee(Utilisateur.NOM_ENTITE, serie.getId_user(), "Utilisateur inconnu, accès à la série impossible.");
         }
     }
 
