@@ -125,7 +125,7 @@ public class EvenementService {
      */
     @Cacheable("evenement")
     public Iterable<Evenement> getEvenementsEtiquetteSerie(long id_serie, String etiquette, long id_user)
-            throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee, ExceptionArgumentIncorrect {
+            throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
 
         if (!serieService.serie_existe(id_serie)) {
             throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE, id_serie, "Identifiant de la série incorrect");
@@ -136,6 +136,32 @@ public class EvenementService {
         try {
             return evenementRepository.getEvenementsByEtiquetteAndIdSerie(etiquette, id_serie);
 
+        } catch (Exception err) {
+            throw new ExceptionInterne("erreur de récupération");
+        }
+    }
+
+
+    /**
+     * Retourne l'évènement de l'étiquette et la série spécifié dont la date est la plus récente
+     * @param id_serie : l'identifiant de la série dans laquelle on effectue une recherche
+     * @param etiquette : l'étiquette exacte recherchée
+     * @param id_user : l'idenfiant de l'utilisateur initiant la requête
+     * @return un évnènement
+     * @throws ExceptionEntiteNonTrouvee : si la série existe pas
+     */
+    @Cacheable("evenement")
+    public Iterable<Evenement> getEvenementEtiquetteSerieRecent(long id_serie, String etiquette, long id_user)
+            throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
+
+        if (!serieService.serie_existe(id_serie)) {
+            throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE, id_serie, "Identifiant de la série incorrect");
+        }
+
+        serieService.autoriser_serie(id_serie, id_user, Serie.DROIT_CONSULTATION);
+
+        try {
+            return evenementRepository.getEvenementsByEtiquetteAndIdSerieOrderByDateDesc(etiquette, id_serie);
         } catch (Exception err) {
             throw new ExceptionInterne("erreur de récupération");
         }

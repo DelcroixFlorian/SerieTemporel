@@ -87,11 +87,10 @@ public class SerieService {
      * @param id_user : identifiant de l'utilisateur qui tente d'accéder à la Serie
      * @param droit : droit nécessaire pour réaliser l'action pour laquelle on vérifie les autorisations
      * @throws ExceptionInterne : Si on arrive pas à récupérer la série correspondant à l'identifiant
-     * @throws ExceptionArgumentIncorrect : Si le numéro de la Serie n'existe pas
      * @throws ExceptionNonAutoriseNonDroit : Si les droits sont insuffisants (ou inexistant)
      * @throws ExceptionEntiteNonTrouvee : si une entié n'est pas trouvée
      */
-    public void autoriser_serie(long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionArgumentIncorrect, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
+    public void autoriser_serie(long id_serie, long id_user, String droit) throws ExceptionInterne, ExceptionNonAutoriseNonDroit, ExceptionEntiteNonTrouvee {
         if (!serieRepo.existsById(id_serie)) {
             throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE,id_serie, "Identifiant de la série incorrect.");
         }

@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 /*
  * Gestion des requêtes concernant les événements
  */
@@ -149,11 +151,14 @@ public class EvenementController {
 
 
     /**
-     *
-     * @param id_user
-     * @param id_serie
-     * @param etiquette
-     * @return
+     * Retourne une liste d'évènements d'une série en fonction d'une étiquette
+     * @param etiquette : Critère de recherche de l'étiquette, recherche exacte (Sensible à la casse)
+     * @param id_serie : identifiant de la série dans laquelle on va chercher
+     * @param id_user : identifiant unique de l'utilisateur qui demande à voir les évènements
+     * @return OK (200) Si on a pu récupérer une liste d'évenement corrrespondant à la recherche + la liste
+     *         INTERNAL_SERVER_ERROR si on échoue à récupérer l'évènement
+     *         NOT_FOUND si l'identifiant de l'évènement, de l'utilisateur ou de la série est incorrect
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisant pour accéder à la série de l'évènement
      */
     @GetMapping("/{id_user}/evenement/{id_serie}/{etiquette}")
     public ResponseEntity voir_evenement_par_etiquette(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
@@ -164,8 +169,39 @@ public class EvenementController {
         } catch (ExceptionInterne err) {
             return ResponseEntity.internalServerError().body(err.getMessage());
 
-        } catch (ExceptionArgumentIncorrect err) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+        }
+
+    }
+
+
+    /**
+     * Retourne le dernier évènement d'une série en fonction d'une étiquette
+     * @param etiquette : Critère de recherche de l'étiquette, recherche exacte (Sensible à la casse)
+     * @param id_serie : identifiant de la série dans laquelle on va chercher
+     * @param id_user : identifiant unique de l'utilisateur qui demande à voir l'évènement
+     * @return OK (200) Si on a pu récupérer l'évenement corrrespondant à la recherche + l'evenement
+     *         INTERNAL_SERVER_ERROR si on échoue à récupérer l'évènement
+     *         NOT_FOUND si l'identifiant de l'évènement, de l'utilisateur ou de la série est incorrect
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisant pour accéder à la série de l'évènement
+     */
+    @GetMapping("/{id_user}/evenement/{id_serie}/derniere_occurence/{etiquette}")
+    public ResponseEntity voir_evenement_dernier_etiquette(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
+        try {
+            //Evenement event = serviceEvenement.getEvenementEtiquetteSerieRecent(id_serie, etiquette, id_user);
+            Iterable<Evenement> iter = serviceEvenement.getEvenementEtiquetteSerieRecent(id_serie, etiquette, id_user);
+            ArrayList<Evenement> alitst = new ArrayList<>();
+            for (Evenement evt: iter) {
+                alitst.add(evt);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(alitst.get(0));
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
 
         } catch (ExceptionNonAutoriseNonDroit err) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
