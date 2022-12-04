@@ -11,7 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 /*
  * Gestion des requêtes concernant les événements
@@ -192,11 +196,11 @@ public class EvenementController {
     @GetMapping("/{id_user}/evenement/{id_serie}/derniere_occurence/{etiquette}")
     public ResponseEntity voir_evenement_dernier_etiquette(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
         try {
-            //Evenement event = serviceEvenement.getEvenementEtiquetteSerieRecent(id_serie, etiquette, id_user);
             Iterable<Evenement> iter = serviceEvenement.getEvenementEtiquetteSerieRecent(id_serie, etiquette, id_user);
             ArrayList<Evenement> alitst = new ArrayList<>();
             for (Evenement evt: iter) {
                 alitst.add(evt);
+                break;
             }
             return ResponseEntity.status(HttpStatus.OK).body(alitst.get(0));
 
@@ -208,6 +212,78 @@ public class EvenementController {
 
         } catch (ExceptionEntiteNonTrouvee err) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+        }
+
+    }
+
+
+    /**
+     * Retourne le temps écoulé depuis la derniere occurrence de l'évènement d'une série en fonction d'une étiquette
+     * @param etiquette : Critère de recherche de l'étiquette, recherche exacte (Sensible à la casse)
+     * @param id_serie : identifiant de la série dans laquelle on va chercher
+     * @param id_user : identifiant unique de l'utilisateur qui demande à voir l'évènement
+     * @return OK (200) Si on a pu récupérer l'évenement corrrespondant à la recherche + l'evenement
+     *         INTERNAL_SERVER_ERROR si on échoue à récupérer l'évènement
+     *         NOT_FOUND si l'identifiant de l'évènement, de l'utilisateur ou de la série est incorrect
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisant pour accéder à la série de l'évènement
+     */
+    @GetMapping("/{id_user}/evenement/{id_serie}/temps_derniere_occurence/{etiquette}")
+    public ResponseEntity temps_evenement_derniere_occurence(@PathVariable long id_user, @PathVariable("id_serie") long id_serie, @PathVariable String etiquette) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceEvenement.delai_en_jour_ecart(id_serie, etiquette, id_user));
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+        }
+
+    }
+
+
+    /**
+     * Retourne le nombre d'évènement pour une étiquette entre deux dates
+     * @param etiquette : Critère de recherche de l'étiquette, recherche exacte (Sensible à la casse)
+     * @param id_serie : identifiant de la série dans laquelle on va chercher
+     * @param id_user : identifiant unique de l'utilisateur qui demande à voir l'évènement
+     * @param date_debut : date de début de la recherche format : 2022-12-24
+     * @param date_fin : date de fin de la recherche format : 2022-12-30
+     * @return OK (200) Si on a pu récupérer l'évenement corrrespondant à la recherche + l'evenement
+     *         INTERNAL_SERVER_ERROR si on échoue à récupérer l'évènement
+     *         NOT_FOUND si l'identifiant de l'évènement, de l'utilisateur ou de la série est incorrect
+     *         UNAUTHORIZED si l'utilisateur n'a pas les droits suffisant pour accéder à la série de l'évènement
+     */
+    @GetMapping("/{id_user}/evenement/{id_serie}/count/{etiquette}/{date_debut}/{date_fin}")
+    public ResponseEntity<String> voir_evenement_dernier_etiquette(@PathVariable long id_user,
+                                                           @PathVariable("id_serie") long id_serie,
+                                                           @PathVariable String etiquette,
+                                                           @PathVariable String date_debut,
+                                                           @PathVariable String date_fin) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
+
+            Date ddate_debut = formatter.parse(date_debut);
+            Date ddate_fin =  formatter.parse(date_fin);
+
+            return ResponseEntity.status(HttpStatus.OK).body("" +
+                    serviceEvenement.get_nombre_evenement_entre_deux_date(etiquette, id_serie, ddate_debut, ddate_fin, id_user)
+            );
+
+        } catch (ExceptionInterne err) {
+            return ResponseEntity.internalServerError().body(err.getMessage());
+
+        } catch (ExceptionNonAutoriseNonDroit err) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err.getMessage());
+
+        } catch (ExceptionEntiteNonTrouvee err) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err.getMessage());
+
+        } catch (ParseException err) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err.getMessage());
         }
 
     }

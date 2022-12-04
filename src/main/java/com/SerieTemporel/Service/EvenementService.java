@@ -12,6 +12,11 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+
 @Service
 public class EvenementService {
 
@@ -147,7 +152,7 @@ public class EvenementService {
      * @param id_serie : l'identifiant de la série dans laquelle on effectue une recherche
      * @param etiquette : l'étiquette exacte recherchée
      * @param id_user : l'idenfiant de l'utilisateur initiant la requête
-     * @return un évnènement
+     * @return un événement
      * @throws ExceptionEntiteNonTrouvee : si la série existe pas
      */
     @Cacheable("evenement")
@@ -167,6 +172,30 @@ public class EvenementService {
         }
     }
 
+
+    /**
+     * Retourne le nombre de jour depuis la dernière occurence d'un événement
+     * @param id_serie : l'identifiant de la série dans laquelle on effectue une recherche
+     * @param etiquette : l'étiquette exacte recherchée
+     * @param id_user : l'idenfiant de l'utilisateur initiant la requête
+     * @return long : le nombre de jour écoulé entre la date de l'évènement et aujourd'hui
+     */
+    public long delai_en_jour_ecart(Long id_serie, String etiquette, Long id_user)
+            throws ExceptionNonAutoriseNonDroit, ExceptionInterne, ExceptionEntiteNonTrouvee {
+
+        Iterable<Evenement> iter = getEvenementEtiquetteSerieRecent(id_serie, etiquette, id_user);
+        ArrayList<Evenement> alitst = new ArrayList<>();
+        for (Evenement evt: iter) {
+            alitst.add(evt);
+            break;
+        }
+
+        Evenement event = alitst.get(0);
+        java.util.Date  utilDate = new java.util.Date(event.getDate().getTime());
+        Duration duration = Duration.between(utilDate.toInstant(), Instant.now());
+
+        return duration.toDays();
+    }
 
     /**
      * Mise à jour d'un événement
@@ -193,5 +222,32 @@ public class EvenementService {
             throw new ExceptionInterne("erreur de mise à jour");
         }
 
+    }
+
+
+    /**
+     *
+     * @param etiquette
+     * @param id_serie
+     * @param date_debut
+     * @param date_fin
+     * @param id_user
+     * @return
+     * @throws ExceptionEntiteNonTrouvee
+     * @throws ExceptionNonAutoriseNonDroit
+     * @throws ExceptionInterne
+     */
+    public int get_nombre_evenement_entre_deux_date(String etiquette, Long id_serie, Date date_debut, Date date_fin, Long id_user) throws ExceptionEntiteNonTrouvee, ExceptionNonAutoriseNonDroit, ExceptionInterne {
+        if (!serieService.serie_existe(id_serie)) {
+            throw new ExceptionEntiteNonTrouvee(Serie.NOM_ENTITE, id_serie, "Identifiant de la série incorrect");
+        }
+
+        serieService.autoriser_serie(id_serie, id_user, Serie.DROIT_CONSULTATION);
+
+        try {
+            return evenementRepository.countEvenementByEtiquetteAndIdSerieAndDateBetween(etiquette, id_serie, date_debut, date_fin);
+        } catch (Exception err) {
+            throw new ExceptionInterne("erreur de récupération");
+        }
     }
 }
